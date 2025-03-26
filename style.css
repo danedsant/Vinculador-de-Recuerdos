@@ -1,0 +1,160 @@
+/* Estilos Generales */
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #111; /* Fondo oscuro general */
+    font-family: sans-serif;
+    overflow: hidden; /* Evita barras de scroll si algo se sale un poco */
+}
+
+/* Contenedor Principal del Mapa Mental */
+.mapa-mental {
+    position: relative; /* CRUCIAL para posicionamiento absoluto de hijos y z-index */
+    width: 85vw;       /* Usar viewport width */
+    height: 85vh;      /* Usar viewport height */
+    max-width: 900px;  /* Limitar tamaño máximo */
+    max-height: 700px; /* Limitar tamaño máximo */
+    /* No necesita fondo si body ya lo tiene */
+}
+
+/* Contenedor SVG para las líneas/tentáculos */
+#svg-lineas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Detrás de los nodos */
+    pointer-events: none; /* No interfiere con clics */
+    overflow: visible; /* Permite que filtros/sombras se vean */
+}
+
+/* Estilo para las líneas (paths SVG) */
+.linea-tentaculo {
+    fill: none;
+    stroke: white;
+    stroke-width: 2px;
+    stroke-linecap: round;
+    /* Efecto neón para SVG usando filter */
+    filter: drop-shadow(0 0 4px white) drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+}
+
+/* Nodo Central (COMPLETO Y CORREGIDO) */
+.nodo-central {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    position: absolute;    /* Posicionamiento y contexto de apilamiento */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Centrado perfecto */
+    overflow: hidden;      /* Recorta la imagen interna */
+    z-index: 10;           /* Encima de todo */
+    box-shadow: 0 0 10px white, 0 0 20px white; /* Efecto neón */
+    background-color: #333; /* Fondo por si la imagen falla */
+}
+
+/* Imagen DENTRO del nodo central */
+.nodo-central img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Cubre el espacio sin deformar */
+}
+
+/* Nodo de Recuerdo (con animación neón) */
+.nodo-recuerdo {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    position: absolute;    /* Posicionado por JavaScript */
+    overflow: visible;     /* Permite ver el box-shadow completo */
+    z-index: 5;            /* Encima del SVG, debajo del nodo central */
+    cursor: pointer;
+    /* Transición suave para hover (opcional) */
+    transition: transform 0.3s ease;
+
+    /* Aplicar la animación de neón */
+    /* Estado inicial/base del box-shadow */
+    box-shadow: 0 0 5px white, 0 0 10px white, 0 0 15px rgba(255, 255, 255, 0.7);
+    animation: neon-parpadeo 1.5s infinite alternate ease-in-out;
+}
+
+/* Imagen DENTRO del nodo de recuerdo */
+.nodo-recuerdo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%; /* Asegura que la imagen también sea redonda */
+}
+
+/* Efecto Hover en Nodo de Recuerdo (Opcional) */
+.nodo-recuerdo:hover {
+    transform: scale(1.1);
+    /* animation-play-state: paused; */ /* Descomenta si quieres pausar neón al pasar el ratón */
+}
+
+/* Tooltip (Texto Descriptivo) */
+.nodo-recuerdo .tooltip {
+    visibility: hidden;
+    position: absolute;
+    bottom: -35px; /* Posición debajo (ajusta si es necesario) */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.8em;
+    white-space: nowrap;
+    z-index: 12; /* Encima de todo cuando está visible */
+    opacity: 0; /* Para transición suave */
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s; /* Transición */
+}
+
+/* Mostrar Tooltip al hacer hover */
+.nodo-recuerdo:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0s; /* Mostrar inmediatamente al hacer hover */
+}
+
+/* Definición de la Animación Neón Parpadeante */
+@keyframes neon-parpadeo {
+    from {
+        /* Estado menos brillante */
+        box-shadow: 0 0 5px white, 0 0 10px white, 0 0 15px rgba(255, 255, 255, 0.7);
+    }
+    to {
+        /* Estado más brillante */
+        box-shadow: 0 0 10px white, 0 0 20px #a248ebe6, 0 0 30px #a248ebe6;
+    }
+}
+
+
+/* Estilos para Controles (Opcional) */
+.controles {
+    position: fixed; /* O absolute, según prefieras */
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100; /* Encima de todo */
+}
+
+#boton-anadir {
+    padding: 10px 20px;
+    font-size: 1em;
+    cursor: pointer;
+    background-color: #eee;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#boton-anadir:hover {
+    background-color: #ddd;
+}
