@@ -1,196 +1,95 @@
-/* Estilos Generales */
-body {
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #111; /* Fondo oscuro general */
-    font-family: sans-serif;
-    overflow: hidden; /* Evita barras de scroll si algo se sale un poco */
-}
+/* Estilos Generales (sin cambios) */
+body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #111; font-family: sans-serif; overflow: hidden; }
+.mapa-mental { position: relative; width: 85vw; height: 85vh; max-width: 900px; max-height: 700px; }
+#svg-lineas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: visible; }
 
-/* Contenedor Principal del Mapa Mental */
-.mapa-mental {
-    position: relative; /* CRUCIAL para posicionamiento absoluto de hijos y z-index */
-    width: 85vw;       /* Usar viewport width */
-    height: 85vh;      /* Usar viewport height */
-    max-width: 900px;  /* Limitar tamaño máximo */
-    max-height: 700px; /* Limitar tamaño máximo */
-    /* No necesita fondo si body ya lo tiene */
-}
-
-/* Contenedor SVG para las líneas/tentáculos */
-#svg-lineas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1; /* Detrás de los nodos */
-    pointer-events: none; /* No interfiere con clics */
-    overflow: visible; /* Permite que filtros/sombras se vean */
-}
-
-/* Estilo para las líneas (paths SVG) */
+/* Estilo para TODAS las líneas ondulantes (tentáculos y ahora vínculos) */
 .linea-tentaculo {
     fill: none;
-    stroke: white;
+    /* stroke: white; */ /* El color se definirá inline o por defecto blanco */
     stroke-width: 2px;
     stroke-linecap: round;
-    /* Efecto neón para SVG usando filter */
-    filter: drop-shadow(0 0 4px white) drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+    filter: drop-shadow(0 0 4px var(--line-glow-color, white)) drop-shadow(0 0 8px var(--line-glow-color-soft, rgba(255, 255, 255, 0.5)));
+    stroke: var(--line-color, white); /* Usar variable para el color */
+    transition: stroke 0.3s ease; /* Suavizar cambio de color */
 }
 
-/* Nodo Central (COMPLETO Y CORREGIDO) */
-.nodo-central {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    position: absolute;    /* Posicionamiento y contexto de apilamiento */
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Centrado perfecto */
-    overflow: hidden;      /* Recorta la imagen interna */
-    z-index: 10;           /* Encima de todo */
-    box-shadow: 0 0 10px white, 0 0 20px white; /* Efecto neón */
-    background-color: #333; /* Fondo por si la imagen falla */
-}
+/* Clase eliminada, ya no se usa: .linea-vinculo { ... } */
 
-/* Imagen DENTRO del nodo central */
-.nodo-central img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover; /* Cubre el espacio sin deformar */
-}
+/* --- Estilos de Nodos --- */
+.nodo { border-radius: 50%; position: absolute; overflow: hidden; cursor: pointer; background-color: #333; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.nodo img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.nodo-principal { width: 120px; height: 120px; z-index: 10; animation: neon-parpadeo-principal 1.8s infinite alternate ease-in-out; }
+.nodo-secundario { width: 100px; height: 100px; z-index: 9; animation: neon-parpadeo-secundario 2s infinite alternate ease-in-out; }
 
-/* Nodo de Recuerdo (con animación neón) */
+/* Nodo de Recuerdo - Preparado para color variable */
 .nodo-recuerdo {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    position: absolute;    /* Posicionado por JavaScript */
-    overflow: visible;     /* Permite ver el box-shadow completo */
-    z-index: 5;            /* Encima del SVG, debajo del nodo central */
-    cursor: pointer;
-    /* Transición suave para hover (opcional) */
-    transition: transform 0.3s ease;
-
-    /* Aplicar la animación de neón */
-    /* Estado inicial/base del box-shadow */
-    box-shadow: 0 0 5px white, 0 0 10px white, 0 0 15px rgba(255, 255, 255, 0.7);
+    width: 90px; height: 90px;
+    z-index: 5;
+    overflow: visible; /* Para ver sombra */
+    /* La animación usará la variable --neon-glow-color */
     animation: neon-parpadeo 1.5s infinite alternate ease-in-out;
+    /* Sombra base (puede omitirse si se prefiere empezar con la animada) */
+     box-shadow: 0 0 5px white, 0 0 10px white, 0 0 15px rgba(255, 255, 255, 0.7);
 }
 
-/* Imagen DENTRO del nodo de recuerdo */
-.nodo-recuerdo img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%; /* Asegura que la imagen también sea redonda */
-}
+.nodo.activo { box-shadow: 0 0 15px cyan, 0 0 30px cyan, 0 0 45px rgba(0, 255, 255, 0.8); transform: scale(1.05); }
+.nodo:not(.activo):hover { transform: scale(1.1); }
 
-/* Efecto Hover en Nodo de Recuerdo (Opcional) */
-.nodo-recuerdo:hover {
-    transform: scale(1.1);
-    /* animation-play-state: paused; */ /* Descomenta si quieres pausar neón al pasar el ratón */
-}
+/* Tooltip (sin cambios) */
+.nodo-recuerdo .tooltip { visibility: hidden; position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%); background-color: rgba(255, 255, 255, 0.9); color: #333; padding: 5px 10px; border-radius: 5px; font-size: 0.8em; white-space: nowrap; z-index: 12; opacity: 0; transition: opacity 0.3s ease, visibility 0s linear 0.3s; pointer-events: none; }
+.nodo-recuerdo:hover .tooltip { visibility: visible; opacity: 1; transition-delay: 0s; }
 
-/* Tooltip (Texto Descriptivo) */
-.nodo-recuerdo .tooltip {
-    visibility: hidden;
-    position: absolute;
-    bottom: -35px; /* Posición debajo (ajusta si es necesario) */
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(255, 255, 255, 0.9);
-    color: #333;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-size: 0.8em;
-    white-space: nowrap;
-    z-index: 12; /* Encima de todo cuando está visible */
-    opacity: 0; /* Para transición suave */
-    transition: opacity 0.3s ease, visibility 0s linear 0.3s; /* Transición */
-}
+/* --- Animaciones Neón --- */
 
-/* Mostrar Tooltip al hacer hover */
-.nodo-recuerdo:hover .tooltip {
-    visibility: visible;
-    opacity: 1;
-    transition-delay: 0s; /* Mostrar inmediatamente al hacer hover */
-}
-
-/* Definición de la Animación Neón Parpadeante */
+/* Animación para Recuerdos (Usa variable de color) */
 @keyframes neon-parpadeo {
     from {
-        /* Estado menos brillante */
-        box-shadow: 0 0 5px white, 0 0 10px white, 0 0 15px rgba(255, 255, 255, 0.7);
+        /* Sombra base blanca o ligeramente coloreada si se prefiere */
+         box-shadow: 0 0 5px white, 0 0 10px white, 0 0 15px rgba(255, 255, 255, 0.7);
     }
     to {
-        /* Estado más brillante */
-        box-shadow: 0 0 10px white, 0 0 20px #a248ebe6, 0 0 30px #a248ebe6;
+        /* Usa la variable --neon-glow-color definida en el elemento */
+        box-shadow: 0 0 10px white, 0 0 20px var(--neon-glow-color, #a248ebe6), 0 0 30px var(--neon-glow-color, #a248ebe6);
     }
 }
-
-/* Estilos para Controles (Opcional) */
-.controles {
-    position: fixed; /* Fijo en la pantalla */
-    bottom: 30px;    /* Distancia desde el borde inferior */
-    left: 50%;       /* Centrado horizontalmente */
-    transform: translateX(-50%); /* Ajuste fino para el centrado */
-    z-index: 100;    /* Asegura que esté por encima de otros elementos */
+@keyframes neon-parpadeo-principal { /* ... sin cambios ... */
+    from { box-shadow: 0 0 8px white, 0 0 15px white, 0 0 20px rgba(255, 255, 255, 0.8); }
+    to { box-shadow: 0 0 15px white, 0 0 25px yellow, 0 0 40px yellow; }
+}
+@keyframes neon-parpadeo-secundario { /* ... sin cambios ... */
+    from { box-shadow: 0 0 6px #aaf, 0 0 12px #aaf, 0 0 18px rgba(180, 180, 255, 0.7); }
+    to { box-shadow: 0 0 10px #ccf, 0 0 20px #ccf, 0 0 30px rgba(200, 200, 255, 0.9); }
 }
 
-#boton-anadir {
-    padding: 12px 28px; /* Más relleno para un botón más grande */
-    font-size: 1.1em;   /* Tamaño de letra ligeramente mayor */
-    font-weight: bold;
-    cursor: pointer;
-    background-color: #111; /* MISMO color que el fondo del body */
-    color: white;         /* Letras blancas */
-    border: none;          /* Quitamos cualquier borde por defecto */
-    border-radius: 8px;    /* Esquinas redondeadas */
-    text-transform: uppercase; /* Opcional: letras en mayúscula */
-    letter-spacing: 1px;     /* Opcional: pequeño espaciado entre letras */
 
-    /* Aplicamos la animación neón con box-shadow */
-    /* Definimos el estado base de la sombra */
-    box-shadow: 0 0 6px rgba(255, 255, 255, 0.8), /* Sombra blanca interior */
-                0 0 10px rgba(255, 255, 255, 0.6), /* Sombra blanca exterior */
-                inset 0 0 5px rgba(255, 255, 255, 0.5); /* Ligero brillo interior */
-    /* Usamos una animación similar a la de los nodos */
-    animation: neon-boton-parpadeo 1.8s infinite alternate ease-in-out;
+/* --- Controles Inferiores (sin cambios) --- */
+.controles-inferiores { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px 0; display: flex; justify-content: space-around; align-items: center; z-index: 100; pointer-events: none; }
 
-    transition: background-color 0.3s ease; /* Suavizar cambio en hover */
+/* --- Controles Superiores (NUEVO) --- */
+.controles-superiores {
+    position: fixed;
+    top: 20px; /* Arriba */
+    right: 20px; /* A la derecha */
+    z-index: 100;
+    display: flex;
+    gap: 10px; /* Espacio entre botones */
+    pointer-events: none; /* El contenedor no bloquea */
 }
 
-/* Efecto Hover para el botón (Opcional) */
-#boton-anadir:hover {
-    background-color: #252525; /* Un gris oscuro al pasar el ratón */
-    /* Podríamos intensificar la sombra o pausar la animación si quisiéramos */
-     /* box-shadow: 0 0 8px rgba(255, 255, 255, 1),
-                   0 0 15px rgba(255, 255, 255, 0.8),
-                   inset 0 0 8px rgba(255, 255, 255, 0.7); */
+/* Clase común para botones neón */
+.boton-neon { padding: 12px 25px; font-size: 1em; font-weight: bold; cursor: pointer; background-color: #111; color: white; border: none; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px; pointer-events: all; /* Los botones SÍ reciben clics */ box-shadow: 0 0 6px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.6), inset 0 0 5px rgba(255, 255, 255, 0.5); animation: neon-boton-parpadeo 1.8s infinite alternate ease-in-out; transition: background-color 0.3s ease, box-shadow 0.3s ease; }
+.boton-neon:hover { background-color: #252525; box-shadow: 0 0 8px rgba(255, 255, 255, 1), 0 0 15px rgba(255, 255, 255, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.7); }
+.boton-neon:disabled { opacity: 0.5; cursor: not-allowed; animation: none; box-shadow: 0 0 5px rgba(150, 150, 150, 0.5); }
+
+/* Botones pequeños para Exportar/Importar */
+.boton-pequeno {
+    padding: 8px 15px;
+    font-size: 0.9em;
 }
 
-/* Definición de la Animación Neón para el BOTÓN */
-/* Puedes reutilizar la animación anterior o crear una específica */
-@keyframes neon-boton-parpadeo {
-    from {
-        /* Estado menos brillante */
-        box-shadow: 0 0 5px rgba(255, 255, 255, 0.7),
-                    0 0 8px rgba(255, 255, 255, 0.5),
-                    inset 0 0 4px rgba(255, 255, 255, 0.4);
-        text-shadow: 0 0 1px #fff; /* Sombra de texto sutil */
-    }
-    to {
-        /* Estado más brillante */
-        box-shadow: 0 0 10px rgba(255, 255, 255, 0.9),
-                    0 0 18px rgba(255, 255, 255, 0.7),
-                    inset 0 0 8px rgba(255, 255, 255, 0.6);
-        text-shadow: 0 0 3px #fff, 0 0 5px rgba(255, 255, 255, 0.7); /* Sombra de texto más notable */
-    }
+/* Animación Neón para el BOTÓN (sin cambios) */
+@keyframes neon-boton-parpadeo { /* ... sin cambios ... */
+    from { box-shadow: 0 0 5px rgba(255, 255, 255, 0.7), 0 0 8px rgba(255, 255, 255, 0.5), inset 0 0 4px rgba(255, 255, 255, 0.4); text-shadow: 0 0 1px #fff; }
+    to { box-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 18px rgba(255, 255, 255, 0.7), inset 0 0 8px rgba(255, 255, 255, 0.6); text-shadow: 0 0 3px #fff, 0 0 5px rgba(255, 255, 255, 0.7); }
 }
