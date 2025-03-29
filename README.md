@@ -1,4 +1,4 @@
-# Memory-Board
+# Vinculador de Recuerdos
 Un mapa de imagenes a modo de album en forma de nodos que representan la conexiones neuronales a modo de recuerdos conectados entre si, la idea era representar las conexiones entre tu, las personas importantes de tu vida y recuerdos compartidos entre estas o datos de estos mismos. 
 
 Los recuerdos estran representados por circulos los cuales están conectados por líneas animadas que se mueven asemejando la ondulacion de tentaculos y brillantes efectos de neon que resulta visualmente atractivo, puedes mover los recuerdos arrastrándolos por la pantalla, asi como tambien puedes exportar a un archivo y luego importar para continuar trabajando para poder mostrarlo a alguien ( localmente claro :) )
