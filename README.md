@@ -8,7 +8,7 @@ Los recuerdos estran representados por circulos los cuales están conectados por
 El punto central del album o mapa de recuerdos, la intencion original es representar a tu persona
 
 #2) Recuerdos Secundarios: 
-La intencion de este, es representar a otras personas relacionadas al recuerdo principal, asi como tambien pueden ser ideas, temas, gustos, etc del de ti o la persona que ocupa el nodo principal.
+La intencion de este, es representar a otras personas relacionadas al recuerdo principal, asi como tambien pueden ser ideas, temas o gustos de ti o la persona que ocupa el nodo principal.
 
 #3) Recuerdos Específicos: 
 Este se trata de los recuerdos en si, esos detalles y/o memorias del recuerdo principal Nodo o las memorias compartidas con los secundario.
