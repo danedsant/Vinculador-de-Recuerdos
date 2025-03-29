@@ -67,15 +67,36 @@ body { margin: 0; display: flex; justify-content: center; align-items: center; m
 .controles-inferiores { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px 0; display: flex; justify-content: space-around; align-items: center; z-index: 100; pointer-events: none; }
 
 /* --- Controles Superiores (NUEVO) --- */
-.controles-superiores {
+/* --- Controles Superiores DERECHA (Exportar/Importar) --- */
+.controles-superiores-derecha {
     position: fixed;
-    top: 20px; /* Arriba */
+    top: 20px;
     right: 20px; /* A la derecha */
     z-index: 100;
     display: flex;
-    gap: 10px; /* Espacio entre botones */
-    pointer-events: none; /* El contenedor no bloquea */
+    gap: 10px;
+    pointer-events: none;
 }
+
+/* --- Controles Superiores IZQUIERDA (Borrar) NUEVO --- */
+.controles-superiores-izquierda {
+    position: fixed;
+    top: 20px;
+    left: 20px; /* A la izquierda */
+    z-index: 100;
+    pointer-events: none; /* El div no bloquea */
+}
+/* Hereda estilos de .boton-neon y .boton-pequeno */
+
+
+/* Clase común para botones neón (sin cambios) */
+.boton-neon { /* ... */ }
+.boton-neon:hover { /* ... */ }
+.boton-neon:disabled { /* ... */ }
+.boton-pequeno { /* ... */ }
+
+/* Animación Neón para el BOTÓN (sin cambios) */
+@keyframes neon-boton-parpadeo { /* ... */ }
 
 /* Clase común para botones neón */
 .boton-neon { padding: 12px 25px; font-size: 1em; font-weight: bold; cursor: pointer; background-color: #111; color: white; border: none; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px; pointer-events: all; /* Los botones SÍ reciben clics */ box-shadow: 0 0 6px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.6), inset 0 0 5px rgba(255, 255, 255, 0.5); animation: neon-boton-parpadeo 1.8s infinite alternate ease-in-out; transition: background-color 0.3s ease, box-shadow 0.3s ease; }
