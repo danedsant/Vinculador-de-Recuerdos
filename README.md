@@ -11,7 +11,7 @@ El punto central del album o mapa de recuerdos, la intencion original es represe
 La intencion de este, es representar a otras personas relacionadas al recuerdo principal, asi como tambien pueden ser ideas, temas o gustos de ti o la persona que ocupa el nodo principal.
 
 #3) Recuerdos Específicos: 
-Este se trata de los recuerdos en si, esos detalles y/o memorias del recuerdo principal Nodo o las memorias compartidas con los secundario.
+Este se trata de los recuerdos en si, esos detalles y/o memorias del recuerdo principal o las memorias compartidas con los secundarios.
 Cada recuerdo se representa con una imagen seleccionada por el usuario. 
 
 
