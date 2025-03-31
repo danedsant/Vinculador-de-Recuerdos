@@ -525,7 +525,7 @@ function restaurarEstadoDesdeDatos(data) {
         tiempoInicio = performance.now();
         animar();
         console.log("Estado restaurado exitosamente. Next ID:", nextId);
-        alert("Recuerdos restaurados :) .");
+        alert("Recuerdos restaurados <3  ");
 
     } catch (error) {
         console.error("Error durante la restauración del estado:", error);
