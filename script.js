@@ -389,7 +389,7 @@ function manejarArchivoImportacion(evento) {
             console.log("Archivo JSON leído y parseado.");
             // Validaciones básicas del formato (opcional pero recomendado)
             if (data && typeof data === 'object' && data.centralNodes && data.nodosData) {
-                if (confirm("Esto reemplazará el tablero actual, ¿Continuar?")) {
+                if (confirm("Esta accion borrara los recuerdos y vinculos actuales, ¿Continuar?")) {
                      console.log("Restaurando estado desde archivo...");
                      restaurarEstadoDesdeDatos(data);
                 } else {
@@ -525,7 +525,7 @@ function restaurarEstadoDesdeDatos(data) {
         tiempoInicio = performance.now();
         animar();
         console.log("Estado restaurado exitosamente. Next ID:", nextId);
-        alert("Tablero restaurado desde el archivo.");
+        alert("Recuerdos restaurados :) .");
 
     } catch (error) {
         console.error("Error durante la restauración del estado:", error);
