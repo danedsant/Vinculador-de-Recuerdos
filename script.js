@@ -1,21 +1,22 @@
-// --- Configuración ---
-const AMPLITUD_ONDULACION = 15;
-const VELOCIDAD_ONDULACION = 0.002;
-const NUM_VINCULOS_SECUNDARIO = 3; // Cuántas líneas para conectar principal y secundario
+// Parametros de las lineas
+const AMPLITUD_ONDULACION = 15; // controla la amplitud de la ondulacion, 15 es el default
+const VELOCIDAD_ONDULACION = 0.002; // controla la velocidad a la que oscilan los tentaculos/lineas
+const NUM_VINCULOS_SECUNDARIO = 3; // numero líneas para conectar recuerdo principal y secundario
 
-// --- Elementos del DOM ---
+// Elementos del DOM
 const mapaContenedor = document.querySelector('.mapa-mental');
 const svgContenedor = document.getElementById('svg-lineas');
 const botonAddPrincipal = document.getElementById('boton-add-principal');
 const botonAddSecundario = document.getElementById('boton-add-secundario');
 const botonAnadirRecuerdo = document.getElementById('boton-anadir-recuerdo');
 const inputImagen = document.getElementById('input-imagen');
-// Nuevos botones y input para exportar/importar
+
+// Botones y input para exportar/importar
 const botonExportar = document.getElementById('boton-exportar');
 const botonImportar = document.getElementById('boton-importar');
 const inputImportar = document.getElementById('import-file');
 
-// --- Almacenamiento de estado ---
+// Almacenamiento de estados
 let principalNodeId = null;
 let centralNodes = [];    // { id, elemento, x, y, tipo, imgSrc?, alt? }
 let nodosData = [];       // { id, elemento, path, parentId, targetX, targetY, offsetTiempo, nombre, imgSrc?, neonColor? }
@@ -28,13 +29,13 @@ let nodoPadreActivoId = null;
 let nextId = 0;
 let accionInputArchivo = null;
 
-// --- Funciones Auxiliares ---
+// Funciones Auxiliares
 function generarId() { return nextId++; }
 function findCentralNodeById(id) { return centralNodes.find(node => node.id === id); }
 function findMemoryNodeById(id) { return nodosData.find(node => node.id === id); }
 function findVinculoByChildId(childId) { return lineasVinculo.find(v => v.childId === childId); }
 
-function getCentroRelativo(elemento, rectMapa) { /* ... sin cambios ... */
+function getCentroRelativo(elemento, rectMapa) { 
     if (!elemento || !rectMapa) return { x: 0, y: 0 };
     const rectElemento = elemento.getBoundingClientRect();
     const width = rectElemento.width || parseFloat(elemento.style.width) || 0;
@@ -69,15 +70,15 @@ function getSoftGlowColor(hslColor) {
 }
 
 
-// --- Funciones de Creación y Procesamiento ---
+// Funciones de Creación y Procesamiento
 
-function iniciarAnadirNodoPrincipal() { /* ... sin cambios ... */
+function iniciarAnadirNodoPrincipal() { 
     console.log("Iniciando añadir nodo principal...");
     if (principalNodeId !== null) { alert("Ya existe un nodo principal."); return; }
     accionInputArchivo = 'principal'; inputImagen.click();
 }
 
-function procesarImagenNodoPrincipal(imagenSrc) { /* ... sin cambios ... */
+function procesarImagenNodoPrincipal(imagenSrc) { 
     console.log("Procesando imagen para nodo principal...");
     if (principalNodeId !== null) { console.warn("Intento de crear segundo nodo principal cancelado."); return; }
     const tipo = 'principal'; const nuevoNodo = document.createElement('div'); const id = generarId();
@@ -94,13 +95,13 @@ function procesarImagenNodoPrincipal(imagenSrc) { /* ... sin cambios ... */
     _actualizarSeleccionPadre(nuevoNodo, id);
 }
 
-function iniciarAnadirNodoSecundario() { /* ... sin cambios ... */
+function iniciarAnadirNodoSecundario() { 
     console.log("Iniciando añadir nodo secundario...");
     if (principalNodeId === null) { alert("Debes añadir un recuerdo principal primero."); return; }
     accionInputArchivo = 'secundario'; inputImagen.click();
 }
 
-function procesarImagenNodoSecundario(imagenSrc, nombreSecundario) { /* ... sin cambios significativos, excepto guardar imgSrc/alt ... */
+function procesarImagenNodoSecundario(imagenSrc, nombreSecundario) {
     console.log(`Procesando imagen para nodo secundario '${nombreSecundario}'...`);
     if (principalNodeId === null) { console.error("CRITICAL: principalNodeId es null."); return; }
     const nodoPrincipal = findCentralNodeById(principalNodeId); if (!nodoPrincipal) { console.error("CRITICAL: No se encontró nodo principal."); return; }
@@ -121,7 +122,7 @@ function procesarImagenNodoSecundario(imagenSrc, nombreSecundario) { /* ... sin 
     console.log(`Nodo Secundario '${nombreSecundario}' (ID: ${id}) creado y vinculado a Principal ID: ${principalNodeId}`);
 }
 
-// <<< NUEVA FUNCIÓN: Crea MÚLTIPLES paths SVG ondulantes para vincular >>>
+// Crea Multiples paths SVG ondulantes para vincular
 function crearVinculoVisualMultiplesLineas(parentId, childId) {
     console.log(`Creando ${NUM_VINCULOS_SECUNDARIO} vínculos visuales entre Padre ID: ${parentId} e Hijo ID: ${childId}`);
     const idBase = generarId(); // ID base para el grupo de líneas
@@ -132,9 +133,9 @@ function crearVinculoVisualMultiplesLineas(parentId, childId) {
         const pathId = `${idBase}-${i}`;
         const nuevoPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         nuevoPath.id = `path-${pathId}`;
-        nuevoPath.classList.add('linea-tentaculo'); // Usar estilo tentáculo
-        // Aplicar un color base (ej. dorado) o dejar el blanco por defecto
-        const vinculoColor = '#FFD700'; // Dorado
+        nuevoPath.classList.add('linea-tentaculo'); // Usar el estilo tentáculo
+        // Aplicar un color base ( usado el dorado) o dejar el blanco por defecto
+        const vinculoColor = '#FFD700'; // Dorado usado
         nuevoPath.style.setProperty('--line-color', vinculoColor);
         nuevoPath.style.setProperty('--line-glow-color', vinculoColor);
         nuevoPath.style.setProperty('--line-glow-color-soft', getSoftGlowColor(vinculoColor));
@@ -150,7 +151,7 @@ function crearVinculoVisualMultiplesLineas(parentId, childId) {
         nuevoPath.classList.add('linea-vinculo-placeholder'); // Clase temporal para la inserción
         paths.push(nuevoPath);
     }
-    // Quitar clase placeholder después de insertarlas todas
+    // Quitar clase temporal/placeholder después de insertarlas todas
      paths.forEach(p => p.classList.remove('linea-vinculo-placeholder'));
 
 
@@ -163,13 +164,13 @@ function crearVinculoVisualMultiplesLineas(parentId, childId) {
     });
 }
 
-function iniciarAnadirRecuerdo() { /* ... sin cambios ... */
+function iniciarAnadirRecuerdo() { 
     console.log("Iniciando añadir recuerdo...");
     if (nodoPadreActivoId === null) { alert("Selecciona un nodo Principal o Secundario primero."); return; }
     accionInputArchivo = 'recuerdo'; inputImagen.click();
 }
 
-// <<< MODIFICADA: Para añadir color Neón aleatorio >>>
+// Creacion de Recuerdo
 function crearNuevoNodoRecuerdo(imagenSrc, nombreRecuerdo) {
     console.log(`Creando recuerdo '${nombreRecuerdo}' para padre ID: ${nodoPadreActivoId}`);
     if (nodoPadreActivoId === null) { console.error("Error: nodoPadreActivoId es null."); return; }
@@ -182,11 +183,10 @@ function crearNuevoNodoRecuerdo(imagenSrc, nombreRecuerdo) {
     const tooltip = document.createElement('span'); tooltip.classList.add('tooltip'); tooltip.textContent = nombreRecuerdo;
     nuevoNodo.appendChild(img); nuevoNodo.appendChild(tooltip);
 
-    // --- Aplicar Color Neón Aleatorio ---
+    // Aplicar Color Neón Aleatorio
     const neonColor = generarColorHSL();
     nuevoNodo.style.setProperty('--neon-glow-color', neonColor);
     console.log(`Color Neón generado para Recuerdo ID ${id}: ${neonColor}`);
-    // --- Fin Aplicar Color ---
 
     rectMapaCache = mapaContenedor.getBoundingClientRect(); const offsetInicial = 120 + Math.random() * 40; const anguloInicial = Math.random() * 2 * Math.PI;
     const baseX = typeof nodoPadre.x === 'number' ? nodoPadre.x : rectMapaCache.width / 2; const baseY = typeof nodoPadre.y === 'number' ? nodoPadre.y : rectMapaCache.height / 2;
@@ -196,7 +196,8 @@ function crearNuevoNodoRecuerdo(imagenSrc, nombreRecuerdo) {
 
     const pathId = generarId(); const nuevoPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     nuevoPath.id = `path-${pathId}`; nuevoPath.classList.add('linea-tentaculo');
-    // Aplicar color a la línea también
+    
+    // Aplicar color a la línea despues de crearla
     nuevoPath.style.setProperty('--line-color', neonColor);
     nuevoPath.style.setProperty('--line-glow-color', neonColor);
     nuevoPath.style.setProperty('--line-glow-color-soft', getSoftGlowColor(neonColor));
@@ -216,7 +217,7 @@ function crearNuevoNodoRecuerdo(imagenSrc, nombreRecuerdo) {
     console.log(`Nodo Recuerdo '${nombreRecuerdo}' (ID: ${id}) creado.`);
 }
 
-function manejarSeleccionArchivo(evento) { /* ... sin cambios (ya pide nombre después)... */
+function manejarSeleccionArchivo(evento) { 
     console.log("Archivo seleccionado, acción pendiente:", accionInputArchivo);
     const archivo = evento.target.files[0]; const accionActual = accionInputArchivo;
     accionInputArchivo = null; inputImagen.value = null;
@@ -233,23 +234,23 @@ function manejarSeleccionArchivo(evento) { /* ... sin cambios (ya pide nombre de
     reader.readAsDataURL(archivo);
 }
 
-// --- Funciones de Selección y Arrastre (Sin cambios) ---
-function _actualizarSeleccionPadre(nodoElemento, nodoId) { /* ... sin cambios ... */
+// Selección y Arrastre
+function _actualizarSeleccionPadre(nodoElemento, nodoId) { 
     if (nodoPadreActivoId === nodoId) return; if (nodoPadreActivoId !== null) { const nodoPrevio = findCentralNodeById(nodoPadreActivoId); nodoPrevio?.elemento.classList.remove('activo'); console.log(`Desmarcando nodo previo ID: ${nodoPadreActivoId}`); }
     nodoElemento.classList.add('activo'); nodoPadreActivoId = nodoId; botonAnadirRecuerdo.disabled = false;
     const nodoPadre = findCentralNodeById(nodoPadreActivoId); let nombrePadre = nodoPadre?.tipo === 'principal' ? 'Ppal.' : (nodoPadre?.alt || `Sec. ${nodoPadreActivoId}`); // Usar alt guardado
     botonAnadirRecuerdo.textContent = `Añadir Recuerdo a ${nombrePadre}`; console.log(`Nodo padre activo cambiado a ID: ${nodoPadreActivoId} (${nombrePadre})`);
 }
-function seleccionarNodoPadre(evento) { /* ... sin cambios ... */ const nodoElemento = evento.currentTarget; const nodoId = parseInt(nodoElemento.id.split('-')[1]); _actualizarSeleccionPadre(nodoElemento, nodoId); evento.stopPropagation(); }
-function iniciarArrastreNodoCentral(evento) { /* ... sin cambios ... */ if (evento.button !== 0) return; const nodoElemento = evento.currentTarget; const id = parseInt(nodoElemento.id.split('-')[1]); rectMapaCache = mapaContenedor.getBoundingClientRect(); const rectNodo = nodoElemento.getBoundingClientRect(); const offsetX = evento.clientX - rectNodo.left; const offsetY = evento.clientY - rectNodo.top; elementoArrastrado = { tipo: 'central', id: id, offsetX: offsetX, offsetY: offsetY }; nodoElemento.style.zIndex = '50'; nodoElemento.style.cursor = 'grabbing'; window.addEventListener('mousemove', arrastrarElemento); window.addEventListener('mouseup', detenerArrastre); window.addEventListener('mouseleave', detenerArrastre); evento.preventDefault(); }
-function iniciarArrastreRecuerdo(evento) { /* ... sin cambios ... */ if (evento.button !== 0) return; const nodoElemento = evento.currentTarget; const id = parseInt(nodoElemento.id.split('-')[1]); rectMapaCache = mapaContenedor.getBoundingClientRect(); const rectNodo = nodoElemento.getBoundingClientRect(); const offsetX = evento.clientX - rectNodo.left; const offsetY = evento.clientY - rectNodo.top; elementoArrastrado = { tipo: 'recuerdo', id: id, offsetX: offsetX, offsetY: offsetY }; const recuerdoData = findMemoryNodeById(id); const padre = recuerdoData ? findCentralNodeById(recuerdoData.parentId) : null; const padreZIndex = padre ? parseInt(window.getComputedStyle(padre.elemento).zIndex) || 10 : 10; nodoElemento.style.zIndex = `${padreZIndex - 1}`; nodoElemento.style.cursor = 'grabbing'; window.addEventListener('mousemove', arrastrarElemento); window.addEventListener('mouseup', detenerArrastre); window.addEventListener('mouseleave', detenerArrastre); evento.preventDefault(); }
-function arrastrarElemento(evento) { /* ... sin cambios ... */ if (!elementoArrastrado) return; let nuevaPosX = evento.clientX - rectMapaCache.left - elementoArrastrado.offsetX; let nuevaPosY = evento.clientY - rectMapaCache.top - elementoArrastrado.offsetY; if (elementoArrastrado.tipo === 'central') { const nodoData = findCentralNodeById(elementoArrastrado.id); if (!nodoData) return; nodoData.elemento.style.left = `${nuevaPosX}px`; nodoData.elemento.style.top = `${nuevaPosY}px`; nodoData.x = nuevaPosX + nodoData.elemento.offsetWidth / 2; nodoData.y = nuevaPosY + nodoData.elemento.offsetHeight / 2; } else if (elementoArrastrado.tipo === 'recuerdo') { const nodoData = findMemoryNodeById(elementoArrastrado.id); if (!nodoData) return; nodoData.elemento.style.left = `${nuevaPosX}px`; nodoData.elemento.style.top = `${nuevaPosY}px`; nodoData.targetX = nuevaPosX + nodoData.elemento.offsetWidth / 2; nodoData.targetY = nuevaPosY + nodoData.elemento.offsetHeight / 2; } }
-function detenerArrastre() { /* ... sin cambios ... */ if (!elementoArrastrado) return; let elementoDOM; let defaultZIndex = 'auto'; if (elementoArrastrado.tipo === 'central') { const nodoData = findCentralNodeById(elementoArrastrado.id); if (nodoData) { elementoDOM = nodoData.elemento; defaultZIndex = nodoData.tipo === 'principal' ? '10' : '9'; } } else if (elementoArrastrado.tipo === 'recuerdo') { const nodoData = findMemoryNodeById(elementoArrastrado.id); if (nodoData) { elementoDOM = nodoData.elemento; defaultZIndex = '5'; } } if (elementoDOM) { elementoDOM.style.zIndex = defaultZIndex; elementoDOM.style.cursor = 'pointer'; } elementoArrastrado = null; window.removeEventListener('mousemove', arrastrarElemento); window.removeEventListener('mouseup', detenerArrastre); window.removeEventListener('mouseleave', detenerArrastre); }
+function seleccionarNodoPadre(evento) {  const nodoElemento = evento.currentTarget; const nodoId = parseInt(nodoElemento.id.split('-')[1]); _actualizarSeleccionPadre(nodoElemento, nodoId); evento.stopPropagation(); }
+function iniciarArrastreNodoCentral(evento) { if (evento.button !== 0) return; const nodoElemento = evento.currentTarget; const id = parseInt(nodoElemento.id.split('-')[1]); rectMapaCache = mapaContenedor.getBoundingClientRect(); const rectNodo = nodoElemento.getBoundingClientRect(); const offsetX = evento.clientX - rectNodo.left; const offsetY = evento.clientY - rectNodo.top; elementoArrastrado = { tipo: 'central', id: id, offsetX: offsetX, offsetY: offsetY }; nodoElemento.style.zIndex = '50'; nodoElemento.style.cursor = 'grabbing'; window.addEventListener('mousemove', arrastrarElemento); window.addEventListener('mouseup', detenerArrastre); window.addEventListener('mouseleave', detenerArrastre); evento.preventDefault(); }
+function iniciarArrastreRecuerdo(evento) { if (evento.button !== 0) return; const nodoElemento = evento.currentTarget; const id = parseInt(nodoElemento.id.split('-')[1]); rectMapaCache = mapaContenedor.getBoundingClientRect(); const rectNodo = nodoElemento.getBoundingClientRect(); const offsetX = evento.clientX - rectNodo.left; const offsetY = evento.clientY - rectNodo.top; elementoArrastrado = { tipo: 'recuerdo', id: id, offsetX: offsetX, offsetY: offsetY }; const recuerdoData = findMemoryNodeById(id); const padre = recuerdoData ? findCentralNodeById(recuerdoData.parentId) : null; const padreZIndex = padre ? parseInt(window.getComputedStyle(padre.elemento).zIndex) || 10 : 10; nodoElemento.style.zIndex = `${padreZIndex - 1}`; nodoElemento.style.cursor = 'grabbing'; window.addEventListener('mousemove', arrastrarElemento); window.addEventListener('mouseup', detenerArrastre); window.addEventListener('mouseleave', detenerArrastre); evento.preventDefault(); }
+function arrastrarElemento(evento) { if (!elementoArrastrado) return; let nuevaPosX = evento.clientX - rectMapaCache.left - elementoArrastrado.offsetX; let nuevaPosY = evento.clientY - rectMapaCache.top - elementoArrastrado.offsetY; if (elementoArrastrado.tipo === 'central') { const nodoData = findCentralNodeById(elementoArrastrado.id); if (!nodoData) return; nodoData.elemento.style.left = `${nuevaPosX}px`; nodoData.elemento.style.top = `${nuevaPosY}px`; nodoData.x = nuevaPosX + nodoData.elemento.offsetWidth / 2; nodoData.y = nuevaPosY + nodoData.elemento.offsetHeight / 2; } else if (elementoArrastrado.tipo === 'recuerdo') { const nodoData = findMemoryNodeById(elementoArrastrado.id); if (!nodoData) return; nodoData.elemento.style.left = `${nuevaPosX}px`; nodoData.elemento.style.top = `${nuevaPosY}px`; nodoData.targetX = nuevaPosX + nodoData.elemento.offsetWidth / 2; nodoData.targetY = nuevaPosY + nodoData.elemento.offsetHeight / 2; } }
+function detenerArrastre() {if (!elementoArrastrado) return; let elementoDOM; let defaultZIndex = 'auto'; if (elementoArrastrado.tipo === 'central') { const nodoData = findCentralNodeById(elementoArrastrado.id); if (nodoData) { elementoDOM = nodoData.elemento; defaultZIndex = nodoData.tipo === 'principal' ? '10' : '9'; } } else if (elementoArrastrado.tipo === 'recuerdo') { const nodoData = findMemoryNodeById(elementoArrastrado.id); if (nodoData) { elementoDOM = nodoData.elemento; defaultZIndex = '5'; } } if (elementoDOM) { elementoDOM.style.zIndex = defaultZIndex; elementoDOM.style.cursor = 'pointer'; } elementoArrastrado = null; window.removeEventListener('mousemove', arrastrarElemento); window.removeEventListener('mouseup', detenerArrastre); window.removeEventListener('mouseleave', detenerArrastre); }
 
 
-// --- Animación ---
+// Animación
 
-function actualizarPathRecuerdo(dataRecuerdo, tiempoActual) { /* ... sin cambios ... */
+function actualizarPathRecuerdo(dataRecuerdo, tiempoActual) { 
     if (!dataRecuerdo.path) return; const nodoPadre = findCentralNodeById(dataRecuerdo.parentId); if (!nodoPadre) { dataRecuerdo.path.setAttribute('d', ''); return; }
     const startX = nodoPadre.x; const startY = nodoPadre.y; const endX = dataRecuerdo.targetX; const endY = dataRecuerdo.targetY;
     if (Math.hypot(endX - startX, endY - startY) < 1) { dataRecuerdo.path.setAttribute('d', ''); return; }
@@ -258,7 +259,7 @@ function actualizarPathRecuerdo(dataRecuerdo, tiempoActual) { /* ... sin cambios
     const controlX = midX + controlOffsetX; const controlY = midY + controlOffsetY; const pathData = `M ${startX},${startY} Q ${controlX},${controlY} ${endX},${endY}`; dataRecuerdo.path.setAttribute('d', pathData);
 }
 
-// <<< MODIFICADA: Para manejar múltiples paths por vínculo y hacerlos ondulantes >>>
+// múltiples paths por vínculo y hacerlos ondulantes 
 function actualizarPathVinculo(dataVinculo, tiempoActual) {
     const nodoPadre = findCentralNodeById(dataVinculo.parentId);
     const nodoHijo = findCentralNodeById(dataVinculo.childId);
@@ -293,7 +294,7 @@ function animar() {
     const tiempoActual = performance.now() - tiempoInicio;
     rectMapaCache = mapaContenedor.getBoundingClientRect();
 
-    // Actualizar líneas de VÍNCULO (Ahora ondulantes)
+    // Actualizar líneas de VÍNCULO  ondulantes
     lineasVinculo.forEach(vinculo => actualizarPathVinculo(vinculo, tiempoActual));
 
     // Actualizar líneas de RECUERDO y posición
@@ -312,7 +313,7 @@ function animar() {
     animationFrameId = requestAnimationFrame(animar);
 }
 
-// --- Exportar / Importar ---
+// Funciones para Exportar y Importar
 
 function prepararDatosParaExportar() {
     const data = {
@@ -335,7 +336,7 @@ function prepararDatosParaExportar() {
             nombre: n.nombre,
             imgSrc: n.imgSrc, // Ya debería ser Data URL
             neonColor: n.neonColor
-            // No guardamos offsetTiempo, se puede regenerar
+            // No guarda offsetTiempo, se puede regenerar
         }))
         // lineasVinculo no se guarda, se recrea a partir de centralNodes
     };
@@ -367,13 +368,13 @@ function exportarDatos() {
 
 function iniciarImportarDatos() {
     console.log("Iniciando importación...");
-    inputImportar.click(); // Abre el selector de archivos JSON
+    inputImportar.click(); // Abre el selector de archivos
 }
 
 function manejarArchivoImportacion(evento) {
     console.log("Archivo de importación seleccionado.");
     const archivo = evento.target.files[0];
-    inputImportar.value = null; // Limpiar para poder importar mismo archivo
+    inputImportar.value = null; // Limpiar para poder importar
 
     if (!archivo || !archivo.name.endsWith('.json')) {
         alert("Por favor, selecciona un archivo .json válido.");
@@ -388,7 +389,7 @@ function manejarArchivoImportacion(evento) {
             console.log("Archivo JSON leído y parseado.");
             // Validaciones básicas del formato (opcional pero recomendado)
             if (data && typeof data === 'object' && data.centralNodes && data.nodosData) {
-                if (confirm("Esto reemplazará el tablero actual. ¿Continuar?")) {
+                if (confirm("Esto reemplazará el tablero actual, ¿Continuar?")) {
                      console.log("Restaurando estado desde archivo...");
                      restaurarEstadoDesdeDatos(data);
                 } else {
@@ -535,21 +536,21 @@ function restaurarEstadoDesdeDatos(data) {
 }
 
 
-// --- Inicialización y Control ---
-function inicializarMapa() { /* ... sin cambios, limpia todo ... */
+// Inicialización y Control
+function inicializarMapa() { 
     console.log("Inicializando mapa..."); svgContenedor.innerHTML = ''; mapaContenedor.querySelectorAll('.nodo').forEach(n => n.remove());
     principalNodeId = null; centralNodes = []; nodosData = []; lineasVinculo = []; nodoPadreActivoId = null; elementoArrastrado = null;
     nextId = 0; accionInputArchivo = null;
     botonAddPrincipal.disabled = false; botonAddSecundario.disabled = true; botonAnadirRecuerdo.disabled = true;
     botonAnadirRecuerdo.textContent = "Añadir Recuerdo"; console.log("Mapa inicializado.");
 }
-function detenerAnimacion() { /* ... sin cambios ... */ if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } }
-function reiniciarAplicacion() { /* ... sin cambios ... */ console.log("Reiniciando aplicación..."); detenerAnimacion(); inicializarMapa(); tiempoInicio = performance.now(); animar(); }
+function detenerAnimacion() {  if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } }
+function reiniciarAplicacion() { console.log("Reiniciando aplicación..."); detenerAnimacion(); inicializarMapa(); tiempoInicio = performance.now(); animar(); }
 
-// --- Event Listeners ---
+//Listeners
 window.addEventListener('load', () => {
     console.log("Ventana cargada. Configurando listeners...");
-    // Añadir verificación de nuevos botones/input
+    //verificación de nuevos botones/input
     if (!mapaContenedor || !svgContenedor || !botonAddPrincipal || !botonAddSecundario || !botonAnadirRecuerdo || !inputImagen || !botonExportar || !botonImportar || !inputImportar) {
         console.error("Faltan elementos esenciales en el DOM (incluyendo exportar/importar)."); return;
     }
@@ -559,6 +560,7 @@ window.addEventListener('load', () => {
     botonAddSecundario.addEventListener('click', iniciarAnadirNodoSecundario);
     botonAnadirRecuerdo.addEventListener('click', iniciarAnadirRecuerdo);
     inputImagen.addEventListener('change', manejarSeleccionArchivo);
+    
     // Listeners Exportar/Importar
     botonExportar.addEventListener('click', exportarDatos);
     botonImportar.addEventListener('click', iniciarImportarDatos);
@@ -566,4 +568,4 @@ window.addEventListener('load', () => {
 
     console.log("Listeners configurados.");
 });
-window.addEventListener('resize', () => { /* ... sin cambios ... */ rectMapaCache = mapaContenedor.getBoundingClientRect(); });
+window.addEventListener('resize', () => { rectMapaCache = mapaContenedor.getBoundingClientRect(); });
