@@ -352,7 +352,7 @@ function exportarDatos() {
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = `memory-board-export-${Date.now()}.json`;
+        a.download = `Mapa-de-Vinculos-${Date.getDate()}-${Date.getMonth()}-${Date.getFullYear()}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
