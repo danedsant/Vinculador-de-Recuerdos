@@ -1,55 +1,51 @@
-/* Estilos Generales  */
+
 body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #111; font-family: sans-serif; overflow: hidden; }
 .mapa-mental { position: relative; width: 85vw; height: 85vh; max-width: 900px; max-height: 700px; }
 #svg-lineas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; overflow: visible; }
 
-/* Estilo para TODAS las líneas ondulantes (tentáculos y vínculos) */
+
 .linea-tentaculo {
     fill: none;
-    /* stroke: white; */         /* El color se define inline o por defecto blanco */
+    /* stroke: white; */        
     stroke-width: 2px;
     stroke-linecap: round;
     filter: drop-shadow(0 0 4px var(--line-glow-color, white)) drop-shadow(0 0 8px var(--line-glow-color-soft, rgba(255, 255, 255, 0.5)));
-    stroke: var(--line-color, white); /* Usar variable para el color */
-    transition: stroke 0.3s ease; /* Suavizar cambio de color */
+    stroke: var(--line-color, white);
+    transition: stroke 0.3s ease;
 }
 
 
-
-/* Estilos de Nodos */
 .nodo { border-radius: 50%; position: absolute; overflow: hidden; cursor: pointer; background-color: #333; transition: transform 0.3s ease, box-shadow 0.3s ease; }
 .nodo img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .nodo-principal { width: 120px; height: 120px; z-index: 10; animation: neon-parpadeo-principal 1.8s infinite alternate ease-in-out; }
 .nodo-secundario { width: 100px; height: 100px; z-index: 9; animation: neon-parpadeo-secundario 2s infinite alternate ease-in-out; }
 
-/* Nodo de Recuerdo , tiene para color variable */
+
 .nodo-recuerdo {
     width: 90px; height: 90px;
     z-index: 5;
-    overflow: visible; /* Para ver sombra */
-    /* La animación usará la variable --neon-glow-color */
+    overflow: visible; 
     animation: neon-parpadeo 1.5s infinite alternate ease-in-out;
-    /* Sombra base */
      box-shadow: 0 0 5px white, 0 0 10px white, 0 0 15px rgba(255, 255, 255, 0.7);
 }
 
 .nodo.activo { box-shadow: 0 0 15px cyan, 0 0 30px cyan, 0 0 45px rgba(0, 255, 255, 0.8); transform: scale(1.05); }
 .nodo:not(.activo):hover { transform: scale(1.1); }
 
-/* Tooltip (cuadro para ver el nombre del recuerdo)*/
+
 .nodo-recuerdo .tooltip { visibility: hidden; position: absolute; bottom: -35px; left: 50%; transform: translateX(-50%); background-color: rgba(255, 255, 255, 0.9); color: #333; padding: 5px 10px; border-radius: 5px; font-size: 0.8em; white-space: nowrap; z-index: 12; opacity: 0; transition: opacity 0.3s ease, visibility 0s linear 0.3s; pointer-events: none; }
 .nodo-recuerdo:hover .tooltip { visibility: visible; opacity: 1; transition-delay: 0s; }
 
-/* Animaciones de Neón */
 
-/* Animación para Recuerdos (Usa variable de color) */
+
+
 @keyframes neon-parpadeo {
     from {
-        /* Sombra base blanca o ligeramente coloreada si se prefiere */
+      
          box-shadow: 0 0 5px white, 0 0 10px white, 0 0 15px rgba(255, 255, 255, 0.7);
     }
     to {
-        /* Usa la variable --neon-glow-color definida en el elemento */
+
         box-shadow: 0 0 10px white, 0 0 20px var(--neon-glow-color, #a248ebe6), 0 0 30px var(--neon-glow-color, #a248ebe6);
     }
 }
@@ -63,32 +59,32 @@ body { margin: 0; display: flex; justify-content: center; align-items: center; m
 }
 
 
-/* Controles Inferiores */
+
 .controles-inferiores { position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px 0; display: flex; justify-content: space-around; align-items: center; z-index: 100; pointer-events: none; }
 
-/* Controles Superiores (importar/exportar)*/
+
 .controles-superiores {
     position: fixed;
-    top: 20px; /* Arriba */
-    right: 20px; /* A la derecha */
+    top: 20px;
+    right: 20px; 
     z-index: 100;
     display: flex;
-    gap: 10px; /* Espacio entre botones */
-    pointer-events: none; /* El contenedor no bloquea */
+    gap: 10px; 
+    pointer-events: none; 
 }
 
-/* Clase de botones neón */
+
 .boton-neon { padding: 12px 25px; font-size: 1em; font-weight: bold; cursor: pointer; background-color: #111; color: white; border: none; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px; pointer-events: all; /* Los botones SÍ reciben clics */ box-shadow: 0 0 6px rgba(255, 255, 255, 0.8), 0 0 10px rgba(255, 255, 255, 0.6), inset 0 0 5px rgba(255, 255, 255, 0.5); animation: neon-boton-parpadeo 1.8s infinite alternate ease-in-out; transition: background-color 0.3s ease, box-shadow 0.3s ease; }
 .boton-neon:hover { background-color: #252525; box-shadow: 0 0 8px rgba(255, 255, 255, 1), 0 0 15px rgba(255, 255, 255, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.7); }
 .boton-neon:disabled { opacity: 0.5; cursor: not-allowed; animation: none; box-shadow: 0 0 5px rgba(150, 150, 150, 0.5); }
 
-/* Botones pequeños para Exportar/Importar */
+
 .boton-pequeno {
     padding: 8px 15px;
     font-size: 0.9em;
 }
 
-/* Animación Neón para el BOTÓN  */
+
 @keyframes neon-boton-parpadeo { 
     from { box-shadow: 0 0 5px rgba(255, 255, 255, 0.7), 0 0 8px rgba(255, 255, 255, 0.5), inset 0 0 4px rgba(255, 255, 255, 0.4); text-shadow: 0 0 1px #fff; }
     to { box-shadow: 0 0 10px rgba(255, 255, 255, 0.9), 0 0 18px rgba(255, 255, 255, 0.7), inset 0 0 8px rgba(255, 255, 255, 0.6); text-shadow: 0 0 3px #fff, 0 0 5px rgba(255, 255, 255, 0.7); }
