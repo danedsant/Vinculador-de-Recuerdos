@@ -352,7 +352,7 @@ function exportarDatos() {
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = `Mapa-de-Vinculos-${Date.getDate()}-${Date.getMonth()}-${Date.getFullYear()}.json`;
+        a.download = `Mapa-de-Vinculos-${Date.getDate()}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
