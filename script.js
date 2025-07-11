@@ -1,4 +1,4 @@
-
+ alert("Esta pagina desactualizada, para disfrutar de las mejoras, prueba la nueva version");
 const AMPLITUD_ONDULACION = 15; 
 const VELOCIDAD_ONDULACION = 0.002;
 const NUM_VINCULOS_SECUNDARIO = 3;
