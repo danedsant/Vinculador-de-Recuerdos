@@ -15,4 +15,4 @@ Este se trata de los recuerdos en si, esos detalles y/o memorias del recuerdo pr
 Cada recuerdo se representa con una imagen seleccionada 
 
 
-# Actualmente esta version se encuentra obsoleta debido a bajo rendimiento  de la pagina al tener demasiadas imagenes cargadas por lo que se deben procesar demasiados efectos visuales que resultan exigentes, de igual manera se dejara activa, pero se continura el desarrollo desde otra version con nuevas caracteristicas y mejoras en el rendmiento de la pagina
+Actualmente esta version se encuentra obsoleta debido a bajo rendimiento  de la pagina al tener demasiadas imagenes cargadas por lo que se deben procesar demasiados efectos visuales que resultan exigentes, de igual manera se dejara activa, pero se continura el desarrollo desde otra version con nuevas caracteristicas y mejoras en el rendmiento de la pagina
