@@ -1,18 +1,46 @@
-# Vinculador de Recuerdos 
-Un mapa de imagenes a modo de album en forma de nodos que representan la conexiones neuronales a modo de recuerdos conectados entre si, la idea es representar las conexiones entre las personas importantes de tu vida y recuerdos compartidos entre estas o datos de estos mismos. 
+# Vinculador de Recuerdos 🌌
 
-Los recuerdos estran representados por circulos los cuales están conectados por líneas animadas que se mueven asemejando la ondulacion de tentaculos con brillantes efectos de neon que resulta visualmente atractivo, puedes mover los recuerdos arrastrándolos por la pantalla, asi como tambien puedes exportar el estado actual a un archivo JSON y luego importar para continuar añadiendo cosas o enviarselo a alguien para mostrarle este album como un gesto
+![Estado: Deprecado](https://img.shields.io/badge/Estado-Beta-orange)
+![Tecnologías: Vanilla JS | HTML | CSS](https://img.shields.io/badge/Stack-Vanilla_JS_%7C_HTML_%7C_CSS-blue)
 
-# Funciones
-# 1 - Recuerdo Principal
-El punto central del album o mapa de recuerdos, la intencion original es representar a tu persona
 
-# 2 - Recuerdos Secundarios: 
-La intencion de este, es representar a otras personas relacionadas al recuerdo principal, asi como tambien pueden ser ideas, temas o gustos de ti o la persona que ocupa el nodo principal.
+Un lienzo interactivo y mapa diseñado para visualizar conexiones interpersonales y recuerdos de forma orgánica. Inspirado en redes neuronales, este proyecto personal permite mapear personas, ideas y momentos a través de nodos dinámicos unidos por enlaces que simulan el movimiento de tentáculos con efectos de iluminación llamativos.
 
-# 3 - Recuerdos Específicos: 
-Este se trata de los recuerdos en si, esos detalles y/o memorias del recuerdo principal o las memorias compartidas con los secundarios.
-Cada recuerdo se representa con una imagen seleccionada 
 
-# Aviso
-Actualmente esta version se encuentra obsoleta debido a bajo rendimiento  de la pagina al tener demasiados svg renderizados para los efectos visuales, por lo que en una version futura se haran mejoras en este apartado, aun asi queda activo para fines de prueba
+ Demo Interactiva: https://memories-linker.vercel.app/
+
+ > [!NOTE]
+ > Existe una nueva version en desarrollo rediseñada completamente desde cero aboradando las deficiencias de esta version de prueba
+
+## 🚀 Características
+
+* **Arquitectura de Nodos Dinámicos:**
+    * **Recuerdo Principal:** El núcleo del mapa, diseñado para representar a la persona central (el usuario).
+
+    * **Recuerdos Secundarios:** Órbitas conectadas al núcleo que representan a personas cercanas, pilares de vida o gustos fundamentales.
+
+    * **Recuerdos Específicos:** Memorias fotográficas periféricas vinculadas a los nodos principales y secundarios.
+
+* **Físicas y Animaciones Orgánicas:** Los enlaces entre nodos no son líneas estáticas; son curvas de Bézier animadas mediante funciones trigonométricas que simulan la respiración u ondulación orgánica.
+* **Sistema de Drag & Drop:** Mueve cualquier nodo libremente por el lienzo. Los enlaces orgánicos seguirán el movimiento en tiempo real.
+* **Persistencia de Datos (Importar/Exportar):** Posibilidad de guardar el estado completo del lienzo (incluyendo las imágenes renderizadas en Base64 y las coordenadas) en un archivo `.json` para continuar editándolo luego o compartirlo.
+
+* **Motor Gráfico actual:** Renderizado dinámico de rutas SVG (`<path>`) manipuladas a través de `requestAnimationFrame`.
+
+## ⚠️ Estado Actual y Hoja de Ruta (Roadmap)
+
+Esta versión (Beta) funciona como una prueba de concepto visual, pero actualmente presenta **cuellos de botella de rendimiento** al escalar. 
+
+**Problemas conocidos a solucionar en próximas versiones:**
+* **Refactorización de Motor de Renderizado:** La manipulación intensiva del DOM mediante SVG causa caídas de fotogramas (FPS) cuando hay demasiados enlaces en pantalla. Está planificada una migración completa a **HTML5 Canvas** para mejorar drásticamente el rendimiento computacional.
+
+* **Optimización de Almacenamiento:** El sistema de exportación actual codifica las imágenes en Base64 dentro del JSON. Se evaluarán métodos de almacenamiento local comprimido para evitar que los archivos de guardado crezcan desproporcionadamente.
+
+* **Diseño Responsivo:** Actualmente el mapa depende de coordenadas absolutas, lo que puede causar desbordamientos en resoluciones de pantalla más pequeñas. Se implementará un sistema de coordenadas relativas o cámara paneable.
+
+## 📥 Cómo usar
+
+1. Ingresa al link -> https://memories-linker.vercel.app/
+
+3. Comienza haciendo clic en **Añadir Recuerdo Principal** para establecer el centro de tu mapa.
+4. Explora las conexiones añadiendo nodos secundarios y arrastrándolos por el espacio.
