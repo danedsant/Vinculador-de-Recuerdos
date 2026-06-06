@@ -25,6 +25,51 @@
 
     <input type="file" id="input-imagen" accept="image/*" style="display: none;">
 
+    <div id="input-modal-container" class="modal-container hidden">
+        <div class="modal-box">
+            <h3 id="modal-title">Introduce un nombre</h3>
+            <input type="text" id="modal-input" autocomplete="off">
+            <div class="modal-buttons">
+                <button id="modal-cancel-btn" class="modal-btn cancel">Cancelar</button>
+                <button id="modal-ok-btn" class="modal-btn ok">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="node-detail-modal-container" class="modal-container hidden">
+        <div class="modal-box">
+            <h3 id="node-detail-title">Detalle del Nodo</h3>
+            <img id="node-detail-image" src="" alt="Imagen del nodo" style="max-width:100%; border-radius:10px; margin: 12px 0;">
+            <input type="text" id="node-detail-input" placeholder="Nombre del nodo" autocomplete="off" style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); margin-bottom:12px;">
+            <div class="modal-buttons">
+                <button id="node-detail-delete-btn" class="modal-btn cancel">Borrar</button>
+                <button id="node-detail-save-btn" class="modal-btn ok">Guardar</button>
+                <button id="node-detail-close-btn" class="modal-btn ok">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="confirm-modal-container" class="modal-container hidden">
+        <div class="modal-box">
+            <h3 id="confirm-title">Confirmar eliminación</h3>
+            <p id="confirm-message" style="margin: 16px 0; color: #ddd;"></p>
+            <div class="modal-buttons">
+                <button id="confirm-no-btn" class="modal-btn cancel">Cancelar</button>
+                <button id="confirm-yes-btn" class="modal-btn ok">Eliminar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="message-modal-container" class="modal-container hidden">
+        <div class="modal-box">
+            <h3 id="message-title">Éxito</h3>
+            <p id="message-text" style="margin: 16px 0; color: #ddd;"></p>
+            <div class="modal-buttons">
+                <button id="message-close-btn" class="modal-btn ok">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>

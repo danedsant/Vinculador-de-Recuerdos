@@ -10,7 +10,28 @@ const botonAddPrincipal = document.getElementById('boton-add-principal');
 const botonAddSecundario = document.getElementById('boton-add-secundario');
 const botonAnadirRecuerdo = document.getElementById('boton-anadir-recuerdo');
 const inputImagen = document.getElementById('input-imagen');
+const inputModalContainer = document.getElementById('input-modal-container');
+const modalTitle = document.getElementById('modal-title');
+const modalInput = document.getElementById('modal-input');
+const modalOkBtn = document.getElementById('modal-ok-btn');
+const modalCancelBtn = document.getElementById('modal-cancel-btn');
+const nodeDetailModalContainer = document.getElementById('node-detail-modal-container');
+const nodeDetailTitle = document.getElementById('node-detail-title');
+const nodeDetailImage = document.getElementById('node-detail-image');
+const nodeDetailInput = document.getElementById('node-detail-input');
+const nodeDetailSaveBtn = document.getElementById('node-detail-save-btn');
+const nodeDetailDeleteBtn = document.getElementById('node-detail-delete-btn');
+const nodeDetailCloseBtn = document.getElementById('node-detail-close-btn');
 
+const confirmModalContainer = document.getElementById('confirm-modal-container');
+const confirmMessage = document.getElementById('confirm-message');
+const confirmYesBtn = document.getElementById('confirm-yes-btn');
+const confirmNoBtn = document.getElementById('confirm-no-btn');
+
+const messageModalContainer = document.getElementById('message-modal-container');
+const messageTitle = document.getElementById('message-title');
+const messageText = document.getElementById('message-text');
+const messageCloseBtn = document.getElementById('message-close-btn');
 
 const botonExportar = document.getElementById('boton-exportar');
 const botonImportar = document.getElementById('boton-importar');
@@ -76,6 +97,17 @@ function generarColorHSL() {
     return `hsl(${h}, ${s}%, ${l}%)`;
 }
 
+function asignarSecundariosANuevoPrincipal(nuevoPrincipalId) {
+    centralNodes.forEach(node => {
+        if (node.tipo === 'secundario' && node.id !== nuevoPrincipalId) {
+            // Si el secundario no está ya vinculado al actual principal, reconectar.
+            if (node.parentId !== nuevoPrincipalId) {
+                node.parentId = nuevoPrincipalId;
+                crearVinculoVisualMultiplesLineas(nuevoPrincipalId, node.id);
+            }
+        }
+    });
+}
 
 function getSoftGlowColor(hslColor) {
     if (!hslColor || !hslColor.startsWith('hsl')) return 'rgba(255, 255, 255, 0.5)'; 
@@ -89,7 +121,253 @@ function getSoftGlowColor(hslColor) {
     }
 }
 
+function solicitarTexto(titulo) {
+    return new Promise(resolve => {
+        modalTitle.textContent = titulo;
+        modalInput.value = '';
+        inputModalContainer.classList.remove('hidden');
+        setTimeout(() => modalInput.focus(), 50);
 
+        const cerrarModal = (valor) => {
+            inputModalContainer.classList.add('hidden');
+            modalOkBtn.removeEventListener('click', onOkClick);
+            modalCancelBtn.removeEventListener('click', onCancelClick);
+            document.removeEventListener('keydown', onKeydown);
+            resolve(valor);
+        };
+
+        const onOkClick = () => cerrarModal(modalInput.value.trim() || null);
+        const onCancelClick = () => cerrarModal(null);
+        const onKeydown = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                onOkClick();
+            } else if (e.key === 'Escape') {
+                onCancelClick();
+            }
+        };
+
+        modalOkBtn.addEventListener('click', onOkClick);
+        modalCancelBtn.addEventListener('click', onCancelClick);
+        document.addEventListener('keydown', onKeydown);
+    });
+}
+
+function mostrarConfirmacion(mensaje) {
+    return new Promise(resolve => {
+        confirmMessage.textContent = mensaje;
+        confirmModalContainer.classList.remove('hidden');
+        confirmYesBtn.focus();
+
+        const cerrarConfirm = (valor) => {
+            confirmModalContainer.classList.add('hidden');
+            confirmYesBtn.removeEventListener('click', onYes);
+            confirmNoBtn.removeEventListener('click', onNo);
+            document.removeEventListener('keydown', onKeydown);
+            resolve(valor);
+        };
+
+        const onYes = () => cerrarConfirm(true);
+        const onNo = () => cerrarConfirm(false);
+        const onKeydown = (e) => {
+            if (e.key === 'Escape') {
+                onNo();
+            } else if (e.key === 'Enter') {
+                if (document.activeElement === confirmNoBtn) {
+                    onNo();
+                } else {
+                    onYes();
+                }
+            }
+        };
+
+        confirmYesBtn.addEventListener('click', onYes);
+        confirmNoBtn.addEventListener('click', onNo);
+        document.addEventListener('keydown', onKeydown);
+    });
+}
+
+function mostrarMensaje(titulo, mensaje) {
+    return new Promise(resolve => {
+        messageTitle.textContent = titulo;
+        messageText.textContent = mensaje;
+        messageModalContainer.classList.remove('hidden');
+        messageCloseBtn.focus();
+
+        const cerrarMensaje = () => {
+            messageModalContainer.classList.add('hidden');
+            messageCloseBtn.removeEventListener('click', cerrarMensaje);
+            document.removeEventListener('keydown', onKeydown);
+            resolve();
+        };
+
+        const onKeydown = (e) => {
+            if (e.key === 'Escape' || e.key === 'Enter') {
+                cerrarMensaje();
+            }
+        };
+
+        messageCloseBtn.addEventListener('click', cerrarMensaje);
+        document.addEventListener('keydown', onKeydown);
+    });
+}
+
+function mostrarDetalleNodo(nodoData) {
+    const tipo = nodoData.tipo || (nodoData.parentId !== undefined ? 'recuerdo' : 'nodo');
+
+    
+    const displayTitle = nodoData.nombre || nodoData.alt || (tipo === 'principal' ? 'Principal' : (tipo === 'secundario' ? 'Secundario' : 'Recuerdo'));
+    nodeDetailTitle.textContent = displayTitle;
+
+    
+    if (nodoData.imgSrc) {
+        nodeDetailImage.src = nodoData.imgSrc;
+        nodeDetailImage.alt = displayTitle;
+        nodeDetailImage.style.display = '';
+    } else {
+        nodeDetailImage.style.display = 'none';
+    }
+
+    
+    nodeDetailInput.value = nodoData.nombre || nodoData.alt || '';
+
+    nodeDetailModalContainer.classList.remove('hidden');
+
+    const cerrar = () => {
+        nodeDetailModalContainer.classList.add('hidden');
+        nodeDetailCloseBtn.removeEventListener('click', cerrarLocal);
+        nodeDetailSaveBtn.removeEventListener('click', onSaveClick);
+        nodeDetailDeleteBtn.removeEventListener('click', onDeleteClick);
+        document.removeEventListener('keydown', onKeydown);
+    };
+
+    const cerrarLocal = () => cerrar();
+
+    const onKeydown = (e) => {
+        if (e.key === 'Escape') {
+            cerrar();
+        }
+    };
+
+    const onSaveClick = () => {
+        const nuevoNombre = nodeDetailInput.value.trim();
+        if (!nuevoNombre) return;
+        if (nodoData.parentId !== undefined) {
+            
+            nodoData.nombre = nuevoNombre;
+            const memoria = findMemoryNodeById(nodoData.id);
+            if (memoria) memoria.nombre = nuevoNombre;
+            
+            const tooltip = nodoData.elemento.querySelector('.tooltip');
+            if (tooltip) tooltip.textContent = nuevoNombre;
+        } else {
+            
+            const central = findCentralNodeById(nodoData.id);
+            if (central) {
+                central.alt = nuevoNombre;
+                nodoData.alt = nuevoNombre;
+                
+                if (nodoPadreActivoId === nodoData.id) {
+                    _actualizarSeleccionPadre(central.elemento, central.id);
+                }
+            }
+        }
+        nodeDetailTitle.textContent = nuevoNombre;
+        cerrar();
+    };
+
+    const onDeleteClick = async () => {
+        // Helper to remove any SVG paths related to a given node id (central or recuerdo)
+        const eliminarPathsRelacionados = (nodeId) => {
+            // Remove direct path stored on a recuerdo data object
+            const recuerdo = nodosData.find(n => n.id === nodeId);
+            if (recuerdo && recuerdo.path) {
+                try { recuerdo.path.remove(); } catch (e) {}
+            }
+
+            // Remove any lineasVinculo entries that reference this id
+            lineasVinculo.forEach(v => {
+                if (v.parentId === nodeId || v.childId === nodeId) {
+                    v.paths.forEach(p => { try { p.remove(); } catch (e) {} });
+                }
+            });
+            lineasVinculo = lineasVinculo.filter(v => v.parentId !== nodeId && v.childId !== nodeId);
+
+            // Fallback: try to remove any remaining path elements whose end coordinates match the node position
+            const nodoCentral = centralNodes.find(n => n.id === nodeId);
+            const nodoMem = nodosData.find(n => n.id === nodeId);
+            const targetX = nodoMem ? nodoMem.targetX : (nodoCentral ? nodoCentral.x : null);
+            const targetY = nodoMem ? nodoMem.targetY : (nodoCentral ? nodoCentral.y : null);
+            if (targetX !== null && targetY !== null) {
+                const paths = svgContenedor.querySelectorAll('path');
+                paths.forEach(p => {
+                    const d = p.getAttribute('d') || '';
+                    // try to extract last coordinates (end point)
+                    const m = d.match(/(?:M\s*-?\d+\.?\d*,?-?\d+\.?\d+\s*Q\s*-?\d+\.?\d*,?-?\d+\.?\d+\s*)(-?\d+\.?\d*),(-?\d+\.?\d*)$/);
+                    if (m) {
+                        const ex = parseFloat(m[1]);
+                        const ey = parseFloat(m[2]);
+                        if (Math.hypot(ex - targetX, ey - targetY) < 3) {
+                            try { p.remove(); } catch (e) {}
+                        }
+                    }
+                });
+            }
+        };
+
+        if (nodoData.parentId !== undefined) {
+            // borrar recuerdo
+            const confirmado = await mostrarConfirmacion('¿Borrar este recuerdo?');
+            if (!confirmado) return;
+            // remove from DOM
+            try { nodoData.elemento.remove(); } catch (e) {}
+            eliminarPathsRelacionados(nodoData.id);
+            // remove from array
+            const idx = nodosData.findIndex(n => n.id === nodoData.id);
+            if (idx !== -1) nodosData.splice(idx, 1);
+            cerrar();
+            actualizarTamañoMapa();
+            return;
+        }
+
+        // borrar nodo central
+        const confirmado = await mostrarConfirmacion('¿Borrar este nodo central y sus recuerdos asociados?');
+        if (!confirmado) return;
+        const centralIdx = centralNodes.findIndex(n => n.id === nodoData.id);
+        if (centralIdx !== -1) {
+            const central = centralNodes[centralIdx];
+            // remove DOM element
+            try { central.elemento.remove(); } catch (e) {}
+            // remove related memories
+            const recuerdosARemover = nodosData.filter(r => r.parentId === central.id);
+            recuerdosARemover.forEach(r => {
+                try { r.elemento.remove(); } catch (e) {}
+                if (r.path) try { r.path.remove(); } catch (e) {}
+            });
+            nodosData = nodosData.filter(r => r.parentId !== central.id);
+            // remove vinculos
+            eliminarPathsRelacionados(central.id);
+            centralNodes.splice(centralIdx, 1);
+            if (principalNodeId === nodoData.id) {
+                principalNodeId = null;
+                botonAddPrincipal.disabled = false;
+                botonAddSecundario.disabled = true;
+            }
+            if (nodoPadreActivoId === nodoData.id) {
+                nodoPadreActivoId = null;
+                botonAnadirRecuerdo.disabled = true;
+                botonAnadirRecuerdo.textContent = 'Añadir Recuerdo';
+            }
+            cerrar();
+            actualizarTamañoMapa();
+        }
+    };
+
+    nodeDetailCloseBtn.addEventListener('click', cerrarLocal);
+    nodeDetailSaveBtn.addEventListener('click', onSaveClick);
+    nodeDetailDeleteBtn.addEventListener('click', onDeleteClick);
+    document.addEventListener('keydown', onKeydown);
+}
 
 
 function calcularExtremosMapa() {
@@ -149,6 +427,29 @@ function actualizarTamañoMapa() {
     rectMapaCache = mapaContenedor.getBoundingClientRect();
 }
 
+function calcularCentroVisibleMapa() {
+    const rectVista = mapaVista.getBoundingClientRect();
+    return {
+        x: rectVista.width / 2 - panActualX,
+        y: rectVista.height / 2 - panActualY
+    };
+}
+
+function calcularPosicionPrincipalInicial() {
+    const secundarios = centralNodes.filter(node => node.tipo === 'secundario');
+    if (secundarios.length > 0) {
+        const suma = secundarios.reduce((acc, node) => ({
+            x: acc.x + node.x,
+            y: acc.y + node.y
+        }), { x: 0, y: 0 });
+        return {
+            x: suma.x / secundarios.length,
+            y: suma.y / secundarios.length
+        };
+    }
+    return calcularCentroVisibleMapa();
+}
+
 function iniciarAnadirNodoPrincipal() { 
     console.log("Iniciando añadir nodo principal...");
 
@@ -160,12 +461,18 @@ function iniciarAnadirNodoPrincipal() {
     accionInputArchivo = 'principal'; inputImagen.click();
 }
 
-function procesarImagenNodoPrincipal(imagenSrc) { 
+async function procesarImagenNodoPrincipal(imagenSrc) { 
     console.log("Procesando imagen para nodo principal...");
     
     if (principalNodeId !== null) { 
         console.warn("Intento de crear segundo nodo principal cancelado."); 
         return; 
+    }
+
+    const nombrePrincipal = await solicitarTexto("Introduce un nombre para el nodo principal:");
+    if (!nombrePrincipal) {
+        console.log("Creación de nodo principal cancelada.");
+        return;
     }
 
     const tipo = 'principal'; 
@@ -177,12 +484,12 @@ function procesarImagenNodoPrincipal(imagenSrc) {
     
     const img = document.createElement('img');
     img.src = imagenSrc; 
-    img.alt = "Nodo Principal"; 
+    img.alt = nombrePrincipal; 
     nuevoNodo.appendChild(img);
 
-    rectMapaCache = mapaContenedor.getBoundingClientRect(); 
-    const initialX = rectMapaCache.width / 2; 
-    const initialY = rectMapaCache.height / 2;
+    const position = calcularPosicionPrincipalInicial();
+    const initialX = position.x; 
+    const initialY = position.y;
     const nodoWidth = 120; 
     const nodoHeight = 120; 
 
@@ -197,15 +504,24 @@ function procesarImagenNodoPrincipal(imagenSrc) {
         y: initialY, 
         tipo, 
         imgSrc: imagenSrc, 
-        alt: img.alt 
+        alt: nombrePrincipal,
+        nombre: nombrePrincipal,
+        parentId: null
     };
 
     centralNodes.push(nodoData); principalNodeId = id;
+
     actualizarTamañoMapa();
-    nuevoNodo.addEventListener('click', seleccionarNodoPadre); nuevoNodo.addEventListener('pointerdown', iniciarArrastreNodoCentral);
+    nuevoNodo.addEventListener('click', seleccionarNodoPadre);
+    nuevoNodo.addEventListener('pointerdown', iniciarArrastreNodoCentral);
+    nuevoNodo.addEventListener('dblclick', (e) => { 
+        e.stopPropagation(); mostrarDetalleNodo(nodoData); 
+    });
+
     botonAddPrincipal.disabled = true; botonAddSecundario.disabled = false;
     console.log(`Nodo Principal creado con ID: ${id}. Botón Secundario HABILITADO.`);
     _actualizarSeleccionPadre(nuevoNodo, id);
+    asignarSecundariosANuevoPrincipal(id);
 }
 
 function iniciarAnadirNodoSecundario() { 
@@ -261,14 +577,16 @@ function procesarImagenNodoSecundario(imagenSrc, nombreSecundario) {
         y: initialY, 
         tipo, 
         imgSrc: imagenSrc, 
-        alt: img.alt 
+        alt: img.alt,
+        parentId: principalNodeId
     };
 
     centralNodes.push(nodoData);
     actualizarTamañoMapa();
     crearVinculoVisualMultiplesLineas(principalNodeId, id); 
-    nuevoNodo.addEventListener('click', seleccionarNodoPadre); 
-            nuevoNodo.addEventListener('pointerdown', iniciarArrastreNodoCentral);
+    nuevoNodo.addEventListener('click', seleccionarNodoPadre);
+    nuevoNodo.addEventListener('pointerdown', iniciarArrastreNodoCentral);
+    nuevoNodo.addEventListener('dblclick', (e) => { e.stopPropagation(); mostrarDetalleNodo(nodoData); });
     console.log(`Nodo Secundario '${nombreSecundario}' (ID: ${id}) creado y vinculado a Principal ID: ${principalNodeId}`);
 }
 
@@ -384,6 +702,7 @@ function crearNuevoNodoRecuerdo(imagenSrc, nombreRecuerdo) {
 
     svgContenedor.appendChild(nuevoPath);
     nuevoNodo.addEventListener('pointerdown', iniciarArrastreRecuerdo);
+    nuevoNodo.addEventListener('dblclick', (e) => { e.stopPropagation(); mostrarDetalleNodo(nuevaData); });
 
     const nuevaData = {
         id: id, 
@@ -402,7 +721,7 @@ function crearNuevoNodoRecuerdo(imagenSrc, nombreRecuerdo) {
     console.log(`Nodo Recuerdo '${nombreRecuerdo}' (ID: ${id}) creado.`);
 }
 
-function manejarSeleccionArchivo(evento) { 
+async function manejarSeleccionArchivo(evento) { 
     console.log("Archivo seleccionado, acción pendiente:", accionInputArchivo);
     const archivo = evento.target.files[0]; 
     const accionActual = accionInputArchivo;
@@ -414,14 +733,14 @@ function manejarSeleccionArchivo(evento) {
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         const imagenDataUrl = e.target.result; 
         console.log("Archivo leído, procesando para acción:", accionActual);
         if (accionActual === 'principal') {
-             procesarImagenNodoPrincipal(imagenDataUrl); 
+             await procesarImagenNodoPrincipal(imagenDataUrl); 
         }
         else if (accionActual === 'secundario') {
-             const nombreSecundario = prompt("Introduce un nombre para el nodo secundario:");
+             const nombreSecundario = await solicitarTexto("Introduce un nombre para el nodo secundario:");
              if (nombreSecundario) {
                 procesarImagenNodoSecundario(imagenDataUrl, nombreSecundario); 
             } else {
@@ -429,7 +748,7 @@ function manejarSeleccionArchivo(evento) {
                 } 
         }
         else if (accionActual === 'recuerdo') {
-             const nombreRecuerdo = prompt("Introduce un nombre para este recuerdo:"); 
+             const nombreRecuerdo = await solicitarTexto("Introduce un nombre para este recuerdo:"); 
              if (nombreRecuerdo) { 
                 crearNuevoNodoRecuerdo(imagenDataUrl, nombreRecuerdo); 
             } else {
@@ -458,8 +777,9 @@ function _actualizarSeleccionPadre(nodoElemento, nodoId) {
     nodoPadreActivoId = nodoId; 
     botonAnadirRecuerdo.disabled = false;
     const nodoPadre = findCentralNodeById(nodoPadreActivoId); 
-    let nombrePadre = nodoPadre?.tipo === 'principal' ? 'Ppal.' : (nodoPadre?.alt || `Sec. ${nodoPadreActivoId}`);
-    
+    // Use the node's own title/alt when available (principal shows its assigned title)
+    let nombrePadre = nodoPadre?.alt || nodoPadre?.nombre || (nodoPadre?.tipo === 'principal' ? 'Principal' : `Sec. ${nodoPadreActivoId}`);
+
     botonAnadirRecuerdo.textContent = `Añadir Recuerdo a ${nombrePadre}`; 
     console.log(`Nodo padre activo cambiado a ID: ${nodoPadreActivoId} (${nombrePadre})`);
 }
@@ -801,14 +1121,15 @@ function manejarArchivoImportacion(evento) {
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         try {
             const jsonContent = e.target.result;
             const data = JSON.parse(jsonContent);
             console.log("Archivo JSON leído y parseado.");
             
             if (data && typeof data === 'object' && data.centralNodes && data.nodosData) {
-                if (confirm("Esta accion borrara los recuerdos y vinculos actuales, ¿Continuar?")) {
+                const confirmado = await mostrarConfirmacion("Esta acción borrará los recuerdos y vínculos actuales, ¿continuar?");
+                if (confirmado) {
                      console.log("Restaurando estado desde archivo...");
                      restaurarEstadoDesdeDatos(data);
                 } else {
@@ -830,7 +1151,7 @@ function manejarArchivoImportacion(evento) {
     reader.readAsText(archivo); 
 }
 
-function restaurarEstadoDesdeDatos(data) {
+async function restaurarEstadoDesdeDatos(data) {
     detenerAnimacion();
     inicializarMapa(); 
 
@@ -873,6 +1194,9 @@ function restaurarEstadoDesdeDatos(data) {
             });
             nuevoNodo.addEventListener('click', seleccionarNodoPadre);
             nuevoNodo.addEventListener('pointerdown', iniciarArrastreNodoCentral);
+            nuevoNodo.addEventListener('dblclick', (e) => { 
+                e.stopPropagation(); mostrarDetalleNodo({ ...nodeData, elemento: nuevoNodo }); 
+            });
         });
 
         
@@ -888,12 +1212,15 @@ function restaurarEstadoDesdeDatos(data) {
              console.log(`Restaurando nodo recuerdo ID: ${nodeData.id}, 
              Nombre: ${nodeData.nombre}`);
              maxIdFound = Math.max(maxIdFound, nodeData.id);
+
              const nuevoNodo = document.createElement('div');
              nuevoNodo.id = `nodo-${nodeData.id}`;
              nuevoNodo.classList.add('nodo', 'nodo-recuerdo');
+
              const img = document.createElement('img');
              img.src = nodeData.imgSrc || ''; 
              img.alt = nodeData.nombre || 'Recuerdo';
+
              const tooltip = document.createElement('span');
              tooltip.classList.add('tooltip');
              tooltip.textContent = nodeData.nombre || 'Recuerdo';
@@ -923,6 +1250,16 @@ function restaurarEstadoDesdeDatos(data) {
              svgContenedor.appendChild(nuevoPath);
 
              nuevoNodo.addEventListener('pointerdown', iniciarArrastreRecuerdo);
+             nuevoNodo.addEventListener('dblclick', (e) => { e.stopPropagation(); mostrarDetalleNodo({
+                 id: nodeData.id,
+                 elemento: nuevoNodo,
+                 parentId: nodeData.parentId,
+                 targetX: nodeData.targetX,
+                 targetY: nodeData.targetY,
+                 nombre: nodeData.nombre,
+                 imgSrc: nodeData.imgSrc,
+                 neonColor: nodeData.neonColor
+             }); });
 
              nodosData.push({
                  id: nodeData.id, 
@@ -957,7 +1294,7 @@ function restaurarEstadoDesdeDatos(data) {
         tiempoInicio = performance.now();
         animar();
         console.log("Estado restaurado exitosamente. Next ID:", nextId);
-        alert("Recuerdos restaurados <3  ");
+        await mostrarMensaje('Restaurado', 'Los recuerdos se han restaurado correctamente :3 ');
 
     } catch (error) {
         console.error("Error durante la restauración del estado:", error);
@@ -973,6 +1310,7 @@ function inicializarMapa() {
     console.log("Inicializando mapa..."); 
     svgContenedor.innerHTML = ''; 
     mapaContenedor.querySelectorAll('.nodo').forEach(n => n.remove());
+
     principalNodeId = null; 
     centralNodes = []; 
     nodosData = []; 
@@ -987,6 +1325,7 @@ function inicializarMapa() {
     panOffsetY = 0;
     panActualX = 0;
     panActualY = 0;
+
     mapaContenedor.style.width = '';
     mapaContenedor.style.height = '';
     mapaContenedor.style.transform = 'translate(0px, 0px)';
@@ -1035,10 +1374,10 @@ window.addEventListener('load', () => {
     console.log("Listeners configurados.");
 });
 
-// Genera una capa fija de estrellas individuales (posiciones aleatorias)
+
 function crearEstrellasFijas(cantidad = 40) {
     if (!mapaVista) return;
-    // Evitar duplicados si se llama varias veces
+    
     const existente = mapaVista.querySelector('.star-layer');
     if (existente) existente.remove();
 
@@ -1059,16 +1398,16 @@ function crearEstrellasFijas(cantidad = 40) {
         s.style.top = `${top}%`;
         s.style.opacity = `${opacity}`;
         s.style.animationDelay = `${delay}s`;
-        // slight blur for larger stars
+        
         if (size > 2) s.style.filter = 'blur(0.6px)';
         layer.appendChild(s);
     }
 
-    // Insertar detrás del contenido
+    
     mapaVista.insertBefore(layer, mapaContenedor);
 }
 
-// Crear 40 estrellas al cargar
+
 window.addEventListener('load', () => crearEstrellasFijas(40));
 
 window.addEventListener('resize', () => { 
