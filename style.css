@@ -416,6 +416,10 @@ body { margin: 0; display: flex; justify-content: center; align-items: center; m
 
 
 .boton-neon { 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     padding: 12px 25px; 
     font-size: 1em; 
     font-weight: bold; 
@@ -496,16 +500,21 @@ body, html {
 
     .panel-controles button, #panelControls button {
         flex: 1 1 calc(50% - 4px);
-        min-height: 46px;
-        padding: 8px 12px;
-        font-size: 13px;
-        font-weight: 600;
+        min-height: 40px;
+        padding: 6px 10px;
+        font-size: 12px;
+        font-weight: 500;
         border-radius: 10px;
         margin: 0 !important;
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
+    }
+
+    .boton-neon {
+        padding: 8px 14px;
+        font-size: 0.9em;
     }
 
 

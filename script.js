@@ -9,6 +9,7 @@ const svgContenedor = document.getElementById('svg-lineas');
 const botonAddPrincipal = document.getElementById('boton-add-principal');
 const botonAddSecundario = document.getElementById('boton-add-secundario');
 const botonAnadirRecuerdo = document.getElementById('boton-anadir-recuerdo');
+const botonAnadirRecuerdoTexto = botonAnadirRecuerdo.querySelector('.boton-texto');
 const inputImagen = document.getElementById('input-imagen');
 const inputModalContainer = document.getElementById('input-modal-container');
 const modalTitle = document.getElementById('modal-title');
@@ -356,7 +357,7 @@ function mostrarDetalleNodo(nodoData) {
             if (nodoPadreActivoId === nodoData.id) {
                 nodoPadreActivoId = null;
                 botonAnadirRecuerdo.disabled = true;
-                botonAnadirRecuerdo.textContent = 'Añadir Recuerdo';
+                botonAnadirRecuerdoTexto.textContent = 'Añadir Vinculo';
             }
             cerrar();
             actualizarTamañoMapa();
@@ -780,7 +781,7 @@ function _actualizarSeleccionPadre(nodoElemento, nodoId) {
     // Use the node's own title/alt when available (principal shows its assigned title)
     let nombrePadre = nodoPadre?.alt || nodoPadre?.nombre || (nodoPadre?.tipo === 'principal' ? 'Principal' : `Sec. ${nodoPadreActivoId}`);
 
-    botonAnadirRecuerdo.textContent = `Añadir Recuerdo a ${nombrePadre}`; 
+    botonAnadirRecuerdoTexto.textContent = `Añadir Vinculo a ${nombrePadre}`; 
     console.log(`Nodo padre activo cambiado a ID: ${nodoPadreActivoId} (${nombrePadre})`);
 }
 function seleccionarNodoPadre(evento) {  
@@ -1287,8 +1288,7 @@ async function restaurarEstadoDesdeDatos(data) {
             botonAddSecundario.disabled = true;
         }
         botonAnadirRecuerdo.disabled = true; 
-        botonAnadirRecuerdo.textContent = "Añadir Recuerdo";
-        nodoPadreActivoId = null; 
+    botonAnadirRecuerdoTexto.textContent = "Añadir Vinculo";
 
         actualizarTamañoMapa();
         tiempoInicio = performance.now();
@@ -1332,7 +1332,7 @@ function inicializarMapa() {
     botonAddPrincipal.disabled = false; 
     botonAddSecundario.disabled = true; 
     botonAnadirRecuerdo.disabled = true;
-    botonAnadirRecuerdo.textContent = "Añadir Recuerdo"; 
+    botonAnadirRecuerdoTexto.textContent = "Añadir Vinculo"; 
     console.log("Mapa inicializado.");
 }
 function detenerAnimacion() {
