@@ -1403,8 +1403,10 @@ window.addEventListener('load', () => {
     reiniciarAplicacion();
     
     botonAddPrincipal.addEventListener('click', iniciarAnadirNodoPrincipal);
-    botonAddSecundario.addEventListener('click', iniciarAnadirNodoSecundario);
-    botonAnadirRecuerdo.addEventListener('click', iniciarAnadirRecuerdo);
+    // Intercambiar acciones: el botón de 'Añadir Momento' debe crear recuerdos
+    // y el de 'Añadir Vinculo' debe crear nodos secundarios (momentos vinculados).
+    botonAddSecundario.addEventListener('click', iniciarAnadirRecuerdo);
+    botonAnadirRecuerdo.addEventListener('click', iniciarAnadirNodoSecundario);
     inputImagen.addEventListener('change', manejarSeleccionArchivo);
     mapaVista.addEventListener('pointerdown', iniciarPaneoMapa);
     
