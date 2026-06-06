@@ -513,10 +513,17 @@ async function procesarImagenNodoPrincipal(imagenSrc) {
     centralNodes.push(nodoData); principalNodeId = id;
 
     actualizarTamañoMapa();
-    nuevoNodo.addEventListener('click', seleccionarNodoPadre);
     nuevoNodo.addEventListener('pointerdown', iniciarArrastreNodoCentral);
-    nuevoNodo.addEventListener('dblclick', (e) => { 
-        e.stopPropagation(); mostrarDetalleNodo(nodoData); 
+    nuevoNodo.addEventListener('click', (e) => {
+        seleccionarNodoPadre.call(nuevoNodo, e);
+        const now = Date.now();
+        if (nodoData._lastTap && now - nodoData._lastTap < 350) {
+            e.stopPropagation();
+            mostrarDetalleNodo(nodoData);
+            nodoData._lastTap = 0;
+        } else {
+            nodoData._lastTap = now;
+        }
     });
 
     botonAddPrincipal.disabled = true; botonAddSecundario.disabled = false;
@@ -585,9 +592,18 @@ function procesarImagenNodoSecundario(imagenSrc, nombreSecundario) {
     centralNodes.push(nodoData);
     actualizarTamañoMapa();
     crearVinculoVisualMultiplesLineas(principalNodeId, id); 
-    nuevoNodo.addEventListener('click', seleccionarNodoPadre);
     nuevoNodo.addEventListener('pointerdown', iniciarArrastreNodoCentral);
-    nuevoNodo.addEventListener('dblclick', (e) => { e.stopPropagation(); mostrarDetalleNodo(nodoData); });
+    nuevoNodo.addEventListener('click', (e) => {
+        seleccionarNodoPadre.call(nuevoNodo, e);
+        const now = Date.now();
+        if (nodoData._lastTap && now - nodoData._lastTap < 350) {
+            e.stopPropagation();
+            mostrarDetalleNodo(nodoData);
+            nodoData._lastTap = 0;
+        } else {
+            nodoData._lastTap = now;
+        }
+    });
     console.log(`Nodo Secundario '${nombreSecundario}' (ID: ${id}) creado y vinculado a Principal ID: ${principalNodeId}`);
 }
 
@@ -703,7 +719,16 @@ function crearNuevoNodoRecuerdo(imagenSrc, nombreRecuerdo) {
 
     svgContenedor.appendChild(nuevoPath);
     nuevoNodo.addEventListener('pointerdown', iniciarArrastreRecuerdo);
-    nuevoNodo.addEventListener('dblclick', (e) => { e.stopPropagation(); mostrarDetalleNodo(nuevaData); });
+    nuevoNodo.addEventListener('click', (e) => {
+        const now = Date.now();
+        if (nuevaData && nuevaData._lastTap && now - nuevaData._lastTap < 350) {
+            e.stopPropagation();
+            mostrarDetalleNodo(nuevaData);
+            nuevaData._lastTap = 0;
+        } else if (nuevaData) {
+            nuevaData._lastTap = now;
+        }
+    });
 
     const nuevaData = {
         id: id, 
@@ -1193,10 +1218,17 @@ async function restaurarEstadoDesdeDatos(data) {
                  imgSrc: nodeData.imgSrc, 
                  alt: nodeData.alt 
             });
-            nuevoNodo.addEventListener('click', seleccionarNodoPadre);
             nuevoNodo.addEventListener('pointerdown', iniciarArrastreNodoCentral);
-            nuevoNodo.addEventListener('dblclick', (e) => { 
-                e.stopPropagation(); mostrarDetalleNodo({ ...nodeData, elemento: nuevoNodo }); 
+            nuevoNodo.addEventListener('click', (e) => {
+                seleccionarNodoPadre.call(nuevoNodo, e);
+                const now = Date.now();
+                if (nodeData._lastTap && now - nodeData._lastTap < 350) {
+                    e.stopPropagation();
+                    mostrarDetalleNodo({ ...nodeData, elemento: nuevoNodo });
+                    nodeData._lastTap = 0;
+                } else {
+                    nodeData._lastTap = now;
+                }
             });
         });
 
@@ -1251,16 +1283,25 @@ async function restaurarEstadoDesdeDatos(data) {
              svgContenedor.appendChild(nuevoPath);
 
              nuevoNodo.addEventListener('pointerdown', iniciarArrastreRecuerdo);
-             nuevoNodo.addEventListener('dblclick', (e) => { e.stopPropagation(); mostrarDetalleNodo({
-                 id: nodeData.id,
-                 elemento: nuevoNodo,
-                 parentId: nodeData.parentId,
-                 targetX: nodeData.targetX,
-                 targetY: nodeData.targetY,
-                 nombre: nodeData.nombre,
-                 imgSrc: nodeData.imgSrc,
-                 neonColor: nodeData.neonColor
-             }); });
+             nuevoNodo.addEventListener('click', (e) => {
+                 const now = Date.now();
+                 if (nodeData._lastTap && now - nodeData._lastTap < 350) {
+                     e.stopPropagation();
+                     mostrarDetalleNodo({
+                         id: nodeData.id,
+                         elemento: nuevoNodo,
+                         parentId: nodeData.parentId,
+                         targetX: nodeData.targetX,
+                         targetY: nodeData.targetY,
+                         nombre: nodeData.nombre,
+                         imgSrc: nodeData.imgSrc,
+                         neonColor: nodeData.neonColor
+                     });
+                     nodeData._lastTap = 0;
+                 } else {
+                     nodeData._lastTap = now;
+                 }
+             });
 
              nodosData.push({
                  id: nodeData.id, 
