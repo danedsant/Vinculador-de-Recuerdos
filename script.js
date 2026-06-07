@@ -92,10 +92,41 @@ function getCentroRelativo(elemento, rectMapa) {
 
 
 function generarColorHSL() {
-    const h = Math.floor(Math.random() * 360); 
-    const s = 90 + Math.floor(Math.random() * 11); 
-    const l = 55 + Math.floor(Math.random() * 11); 
+    const h = Math.floor(Math.random() * 360);
+    const s = 90 + Math.floor(Math.random() * 11);
+    const l = 55 + Math.floor(Math.random() * 11);
     return `hsl(${h}, ${s}%, ${l}%)`;
+}
+
+// Parse hue from HSL string `hsl(H, S%, L%)` returning integer H or null
+function parseHueFromHSL(hsl) {
+    if (!hsl) return null;
+    const m = hsl.match(/hsl\((\d+),\s*(\d+)%/i);
+    return m ? parseInt(m[1], 10) : null;
+}
+
+// Generate a color for a "recuerdo" that is not similar to any central node color
+function generarColorParaRecuerdo() {
+    const existingHues = centralNodes
+        .map(n => n.neonColor)
+        .filter(Boolean)
+        .map(parseHueFromHSL)
+        .filter(h => typeof h === 'number');
+
+    for (let i = 0; i < 12; i++) {
+        const candidate = generarColorHSL();
+        const hue = parseHueFromHSL(candidate);
+        if (hue === null) return candidate;
+        // Check distance to every existing hue
+        const tooClose = existingHues.some(h => {
+            let d = Math.abs(h - hue);
+            if (d > 180) d = 360 - d;
+            return d < 30; // within 30deg considered too similar
+        });
+        if (!tooClose) return candidate;
+    }
+    // Fallback
+    return generarColorHSL();
 }
 
 function asignarSecundariosANuevoPrincipal(nuevoPrincipalId) {
@@ -498,16 +529,21 @@ async function procesarImagenNodoPrincipal(imagenSrc) {
     nuevoNodo.style.top = `${initialY - nodoHeight / 2}px`;
     mapaContenedor.appendChild(nuevoNodo);
     
+    // Assign a principal neon color that will be reused by its vinculos
+    const principalColor = generarColorHSL();
+    nuevoNodo.style.setProperty('--neon-glow-color', principalColor);
+
     const nodoData = {
-        id, 
-        elemento: nuevoNodo, 
-        x: initialX, 
-        y: initialY, 
-        tipo, 
-        imgSrc: imagenSrc, 
+        id,
+        elemento: nuevoNodo,
+        x: initialX,
+        y: initialY,
+        tipo,
+        imgSrc: imagenSrc,
         alt: nombrePrincipal,
         nombre: nombrePrincipal,
-        parentId: null
+        parentId: null,
+        neonColor: principalColor
     };
 
     centralNodes.push(nodoData); principalNodeId = id;
@@ -578,20 +614,25 @@ function procesarImagenNodoSecundario(imagenSrc, nombreSecundario) {
     nuevoNodo.style.left = `${initialX - nodoWidth / 2}px`; 
     nuevoNodo.style.top = `${initialY - nodoHeight / 2}px`;
     mapaContenedor.appendChild(nuevoNodo);
-    const nodoData = { 
+    // Use parent's color for secondary node so vinculos share principal color
+    const parentColor = nodoPrincipal.neonColor || generarColorHSL();
+    nuevoNodo.style.setProperty('--neon-glow-color', parentColor);
+
+    const nodoData = {
         id,
         elemento: nuevoNodo,
         x: initialX,
-        y: initialY, 
-        tipo, 
-        imgSrc: imagenSrc, 
+        y: initialY,
+        tipo,
+        imgSrc: imagenSrc,
         alt: img.alt,
-        parentId: principalNodeId
+        parentId: principalNodeId,
+        neonColor: parentColor
     };
 
     centralNodes.push(nodoData);
     actualizarTamañoMapa();
-    crearVinculoVisualMultiplesLineas(principalNodeId, id); 
+    crearVinculoVisualMultiplesLineas(principalNodeId, id);
     nuevoNodo.addEventListener('pointerdown', iniciarArrastreNodoCentral);
     nuevoNodo.addEventListener('click', (e) => {
         seleccionarNodoPadre.call(nuevoNodo, e);
@@ -614,13 +655,16 @@ function crearVinculoVisualMultiplesLineas(parentId, childId) {
     const paths = [];
     const offsetTiempoBase = Math.random() * 10000; 
 
+    const parentNode = findCentralNodeById(parentId);
+    const childNode = findCentralNodeById(childId);
+    const vinculoColor = parentNode?.neonColor || childNode?.neonColor || '#FFD700';
+
     for (let i = 0; i < NUM_VINCULOS_SECUNDARIO; i++) {
         const pathId = `${idBase}-${i}`;
         const nuevoPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         nuevoPath.id = `path-${pathId}`;
         nuevoPath.classList.add('linea-tentaculo'); 
         
-        const vinculoColor = '#FFD700'; 
         nuevoPath.style.setProperty('--line-color', vinculoColor);
         nuevoPath.style.setProperty('--line-glow-color', vinculoColor);
         nuevoPath.style.setProperty('--line-glow-color-soft', getSoftGlowColor(vinculoColor));
@@ -689,7 +733,7 @@ function crearNuevoNodoRecuerdo(imagenSrc, nombreRecuerdo) {
     nuevoNodo.appendChild(tooltip);
 
     
-    const neonColor = generarColorHSL();
+    const neonColor = generarColorParaRecuerdo();
     nuevoNodo.style.setProperty('--neon-glow-color', neonColor);
     console.log(`Color Neón generado para Recuerdo ID ${id}: ${neonColor}`);
 
@@ -1090,8 +1134,10 @@ function prepararDatosParaExportar() {
             x: n.x,
             y: n.y,
             tipo: n.tipo,
-            imgSrc: n.imgSrc, 
-            alt: n.alt
+            imgSrc: n.imgSrc,
+            alt: n.alt,
+            parentId: n.parentId ?? null,
+            neonColor: n.neonColor
         })),
         nodosData: nodosData.map(n => ({
             id: n.id,
@@ -1099,9 +1145,8 @@ function prepararDatosParaExportar() {
             targetX: n.targetX,
             targetY: n.targetY,
             nombre: n.nombre,
-            imgSrc: n.imgSrc, 
+            imgSrc: n.imgSrc,
             neonColor: n.neonColor
-            
         }))
         
     };
@@ -1209,15 +1254,21 @@ async function restaurarEstadoDesdeDatos(data) {
             nuevoNodo.style.top = `${nodeData.y - nodoHeight / 2}px`;
             mapaContenedor.appendChild(nuevoNodo);
 
-            centralNodes.push({
-                 id: nodeData.id, 
-                 elemento: nuevoNodo, 
-                 x: nodeData.x, 
-                 y: nodeData.y, 
+            const centralObj = {
+                 id: nodeData.id,
+                 elemento: nuevoNodo,
+                 x: nodeData.x,
+                 y: nodeData.y,
                  tipo: tipo,
-                 imgSrc: nodeData.imgSrc, 
-                 alt: nodeData.alt 
-            });
+                 imgSrc: nodeData.imgSrc,
+                 alt: nodeData.alt,
+                 parentId: nodeData.parentId ?? null
+            };
+            if (nodeData.neonColor) {
+                nuevoNodo.style.setProperty('--neon-glow-color', nodeData.neonColor);
+                centralObj.neonColor = nodeData.neonColor;
+            }
+            centralNodes.push(centralObj);
             nuevoNodo.addEventListener('pointerdown', iniciarArrastreNodoCentral);
             nuevoNodo.addEventListener('click', (e) => {
                 seleccionarNodoPadre.call(nuevoNodo, e);
@@ -1232,9 +1283,19 @@ async function restaurarEstadoDesdeDatos(data) {
             });
         });
 
-        
+        // Ensure secondary nodes restore with the same color as their principal parent.
         centralNodes.forEach(node => {
-            if(node.tipo === 'secundario' && principalNodeId !== null) {
+            if (!node.neonColor) {
+                const parentNode = node.parentId ? findCentralNodeById(node.parentId) : null;
+                node.neonColor = parentNode?.neonColor || generarColorHSL();
+                node.elemento.style.setProperty('--neon-glow-color', node.neonColor);
+            } else {
+                node.elemento.style.setProperty('--neon-glow-color', node.neonColor);
+            }
+        });
+
+        centralNodes.forEach(node => {
+            if (node.tipo === 'secundario' && principalNodeId !== null) {
                 crearVinculoVisualMultiplesLineas(principalNodeId, node.id);
             }
         });
