@@ -7,7 +7,7 @@
 Un lienzo interactivo y mapa diseñado para visualizar conexiones interpersonales y recuerdos de forma orgánica. Inspirado en las constelaciones, este proyecto personal permite vincular personas y momentos emotivos a través de nodos unidos por lineas que simulan el movimiento de tentáculos con efectos de iluminación llamativos.
 
 
- Demo Interactiva: starrymem.vercel.app
+ Demo Interactiva: [Starry Memories](https://starrymem.vercel.app/)
 
  > [!NOTE]
  > Existe una nueva version en desarrollo rediseñada completamente desde cero aboradando las deficiencias de esta version de prueba
@@ -29,7 +29,7 @@ Un lienzo interactivo y mapa diseñado para visualizar conexiones interpersonale
 
 ## 📥 Cómo usar
 
-1. Ingresa al link -> starrymem.vercel.app
+1. Ingresa al link -> [Starry Memories](https://starrymem.vercel.app/)
 
 3. Comienza haciendo clic en **Añadir Recuerdo Principal** para establecer el centro de tu mapa.
 4. Explora las conexiones añadiendo nodos secundarios y arrastrándolos por el espacio.
