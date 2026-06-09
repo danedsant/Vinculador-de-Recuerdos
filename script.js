@@ -98,14 +98,12 @@ function generarColorHSL() {
     return `hsl(${h}, ${s}%, ${l}%)`;
 }
 
-// Parse hue from HSL string `hsl(H, S%, L%)` returning integer H or null
 function parseHueFromHSL(hsl) {
     if (!hsl) return null;
     const m = hsl.match(/hsl\((\d+),\s*(\d+)%/i);
     return m ? parseInt(m[1], 10) : null;
 }
 
-// Generate a color for a "recuerdo" that is not similar to any central node color
 function generarColorParaRecuerdo() {
     const existingHues = centralNodes
         .map(n => n.neonColor)
@@ -117,22 +115,22 @@ function generarColorParaRecuerdo() {
         const candidate = generarColorHSL();
         const hue = parseHueFromHSL(candidate);
         if (hue === null) return candidate;
-        // Check distance to every existing hue
+        
         const tooClose = existingHues.some(h => {
             let d = Math.abs(h - hue);
             if (d > 180) d = 360 - d;
-            return d < 30; // within 30deg considered too similar
+            return d < 30; 
         });
         if (!tooClose) return candidate;
     }
-    // Fallback
+    
     return generarColorHSL();
 }
 
 function asignarSecundariosANuevoPrincipal(nuevoPrincipalId) {
     centralNodes.forEach(node => {
         if (node.tipo === 'secundario' && node.id !== nuevoPrincipalId) {
-            // Si el secundario no está ya vinculado al actual principal, reconectar.
+
             if (node.parentId !== nuevoPrincipalId) {
                 node.parentId = nuevoPrincipalId;
                 crearVinculoVisualMultiplesLineas(nuevoPrincipalId, node.id);
@@ -309,15 +307,15 @@ function mostrarDetalleNodo(nodoData) {
     };
 
     const onDeleteClick = async () => {
-        // Helper to remove any SVG paths related to a given node id (central or recuerdo)
+
         const eliminarPathsRelacionados = (nodeId) => {
-            // Remove direct path stored on a recuerdo data object
+   
             const recuerdo = nodosData.find(n => n.id === nodeId);
             if (recuerdo && recuerdo.path) {
                 try { recuerdo.path.remove(); } catch (e) {}
             }
 
-            // Remove any lineasVinculo entries that reference this id
+          
             lineasVinculo.forEach(v => {
                 if (v.parentId === nodeId || v.childId === nodeId) {
                     v.paths.forEach(p => { try { p.remove(); } catch (e) {} });
@@ -325,7 +323,7 @@ function mostrarDetalleNodo(nodoData) {
             });
             lineasVinculo = lineasVinculo.filter(v => v.parentId !== nodeId && v.childId !== nodeId);
 
-            // Fallback: try to remove any remaining path elements whose end coordinates match the node position
+
             const nodoCentral = centralNodes.find(n => n.id === nodeId);
             const nodoMem = nodosData.find(n => n.id === nodeId);
             const targetX = nodoMem ? nodoMem.targetX : (nodoCentral ? nodoCentral.x : null);
@@ -334,7 +332,7 @@ function mostrarDetalleNodo(nodoData) {
                 const paths = svgContenedor.querySelectorAll('path');
                 paths.forEach(p => {
                     const d = p.getAttribute('d') || '';
-                    // try to extract last coordinates (end point)
+             
                     const m = d.match(/(?:M\s*-?\d+\.?\d*,?-?\d+\.?\d+\s*Q\s*-?\d+\.?\d*,?-?\d+\.?\d+\s*)(-?\d+\.?\d*),(-?\d+\.?\d*)$/);
                     if (m) {
                         const ex = parseFloat(m[1]);
@@ -348,13 +346,13 @@ function mostrarDetalleNodo(nodoData) {
         };
 
         if (nodoData.parentId !== undefined) {
-            // borrar recuerdo
+         
             const confirmado = await mostrarConfirmacion('¿Borrar este recuerdo?');
             if (!confirmado) return;
-            // remove from DOM
+     
             try { nodoData.elemento.remove(); } catch (e) {}
             eliminarPathsRelacionados(nodoData.id);
-            // remove from array
+
             const idx = nodosData.findIndex(n => n.id === nodoData.id);
             if (idx !== -1) nodosData.splice(idx, 1);
             cerrar();
@@ -362,22 +360,22 @@ function mostrarDetalleNodo(nodoData) {
             return;
         }
 
-        // borrar nodo central
+
         const confirmado = await mostrarConfirmacion('¿Borrar este nodo central y sus recuerdos asociados?');
         if (!confirmado) return;
         const centralIdx = centralNodes.findIndex(n => n.id === nodoData.id);
         if (centralIdx !== -1) {
             const central = centralNodes[centralIdx];
-            // remove DOM element
+       
             try { central.elemento.remove(); } catch (e) {}
-            // remove related memories
+         
             const recuerdosARemover = nodosData.filter(r => r.parentId === central.id);
             recuerdosARemover.forEach(r => {
                 try { r.elemento.remove(); } catch (e) {}
                 if (r.path) try { r.path.remove(); } catch (e) {}
             });
             nodosData = nodosData.filter(r => r.parentId !== central.id);
-            // remove vinculos
+       
             eliminarPathsRelacionados(central.id);
             centralNodes.splice(centralIdx, 1);
             if (principalNodeId === nodoData.id) {
@@ -614,7 +612,7 @@ function procesarImagenNodoSecundario(imagenSrc, nombreSecundario) {
     nuevoNodo.style.left = `${initialX - nodoWidth / 2}px`; 
     nuevoNodo.style.top = `${initialY - nodoHeight / 2}px`;
     mapaContenedor.appendChild(nuevoNodo);
-    // Use parent's color for secondary node so vinculos share principal color
+  
     const parentColor = nodoPrincipal.neonColor || generarColorHSL();
     nuevoNodo.style.setProperty('--neon-glow-color', parentColor);
 
@@ -847,7 +845,7 @@ function _actualizarSeleccionPadre(nodoElemento, nodoId) {
     nodoPadreActivoId = nodoId; 
     botonAnadirRecuerdo.disabled = false;
     const nodoPadre = findCentralNodeById(nodoPadreActivoId); 
-    // Use the node's own title/alt when available (principal shows its assigned title)
+
     let nombrePadre = nodoPadre?.alt || nodoPadre?.nombre || (nodoPadre?.tipo === 'principal' ? 'Principal' : `Sec. ${nodoPadreActivoId}`);
 
     botonAnadirRecuerdoTexto.textContent = `Añadir Vinculo a ${nombrePadre}`; 
@@ -986,7 +984,7 @@ function detenerArrastre(evento) {
             try {
                 mapaContenedor.releasePointerCapture(evento.pointerId);
             } catch (error) {
-                // Ignore if pointer capture has already been released.
+           
             }
         }
     }
@@ -999,7 +997,7 @@ function detenerArrastre(evento) {
             try {
                 elementoArrastrado.elemento.releasePointerCapture(elementoArrastrado.pointerId);
             } catch (error) {
-                // Ignore if pointer capture has already been released.
+           
             }
         }
 
@@ -1371,7 +1369,7 @@ async function restaurarEstadoDesdeDatos(data) {
                  parentId: nodeData.parentId,
                  targetX: nodeData.targetX, 
                  targetY: nodeData.targetY,
-                 offsetTiempo: Math.random() * 10000, // Regenerar offset
+                 offsetTiempo: Math.random() * 10000, 
                  nombre: nodeData.nombre, 
                  imgSrc: nodeData.imgSrc, 
                  neonColor: nodeData.neonColor
@@ -1464,8 +1462,7 @@ window.addEventListener('load', () => {
     reiniciarAplicacion();
     
     botonAddPrincipal.addEventListener('click', iniciarAnadirNodoPrincipal);
-    // Intercambiar acciones: el botón de 'Añadir Momento' debe crear recuerdos
-    // y el de 'Añadir Vinculo' debe crear nodos secundarios (momentos vinculados).
+
     botonAddSecundario.addEventListener('click', iniciarAnadirRecuerdo);
     botonAnadirRecuerdo.addEventListener('click', iniciarAnadirNodoSecundario);
     inputImagen.addEventListener('change', manejarSeleccionArchivo);
@@ -1491,7 +1488,7 @@ function crearEstrellasFijas(cantidad = 40) {
     for (let i = 0; i < cantidad; i++) {
         const s = document.createElement('div');
         s.className = 'star';
-        const size = (Math.random() * 2.4) + 0.6; // 0.6px - 3px
+        const size = (Math.random() * 2.4) + 0.6; 
         const left = Math.random() * 100;
         const top = Math.random() * 100;
         const opacity = 0.5 + Math.random() * 0.5;
