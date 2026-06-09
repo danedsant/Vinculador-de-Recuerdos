@@ -7,7 +7,7 @@ body { margin: 0; display: flex; justify-content: center; align-items: center; m
     height: 100vh;
     overflow: hidden;
     touch-action: none;
-    background-color: #0d0d14; /* Fondo espacial oscuro */
+    background-color: #0d0d14;
     color: #fff;
 }
 
@@ -21,7 +21,7 @@ body { margin: 0; display: flex; justify-content: center; align-items: center; m
     transform: translate(0px, 0px);
     will-change: transform;
     touch-action: none;
-    z-index: 2; /* asegurar que el contenido quede sobre las estrellas */
+    z-index: 2; 
 }
 
 #svg-lineas {
@@ -35,7 +35,6 @@ body { margin: 0; display: flex; justify-content: center; align-items: center; m
     overflow: visible;
 }
 
-/* Capas de estrellas minimalistas sobre el viewport */
 .mapa-mental::before {
     content: "";
     position: absolute;
@@ -43,7 +42,7 @@ body { margin: 0; display: flex; justify-content: center; align-items: center; m
     pointer-events: none;
     mix-blend-mode: screen;
     z-index: 0;
-    /* Capas densas de estrellas con ligeras variaciones en tamaño */
+    
     background-image:
         radial-gradient(rgba(255,255,255,0.98) 0.65px, transparent 0.9px),
         radial-gradient(rgba(255,255,255,0.86) 0.45px, transparent 0.6px),
@@ -63,7 +62,7 @@ body { margin: 0; display: flex; justify-content: center; align-items: center; m
     pointer-events: none;
     mix-blend-mode: screen;
     z-index: 0;
-    /* Capa extra muy densa con micro-estrellas para efecto profundo */
+
     background-image:
         radial-gradient(rgba(255,255,255,0.6) 0.9px, transparent 1.2px),
         radial-gradient(rgba(255,255,255,0.48) 0.5px, transparent 0.8px),
