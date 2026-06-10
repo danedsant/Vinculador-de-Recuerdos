@@ -527,7 +527,7 @@ async function procesarImagenNodoPrincipal(imagenSrc) {
     nuevoNodo.style.top = `${initialY - nodoHeight / 2}px`;
     mapaContenedor.appendChild(nuevoNodo);
     
-    // Assign a principal neon color that will be reused by its vinculos
+   
     const principalColor = generarColorHSL();
     nuevoNodo.style.setProperty('--neon-glow-color', principalColor);
 
@@ -1281,7 +1281,7 @@ async function restaurarEstadoDesdeDatos(data) {
             });
         });
 
-        // Ensure secondary nodes restore with the same color as their principal parent.
+     
         centralNodes.forEach(node => {
             if (!node.neonColor) {
                 const parentNode = node.parentId ? findCentralNodeById(node.parentId) : null;
