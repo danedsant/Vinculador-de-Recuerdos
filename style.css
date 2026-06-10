@@ -1,5 +1,14 @@
 
-body { margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #111; font-family: sans-serif; overflow: hidden; }
+body { 
+    margin: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+    background-color: #111; 
+    font-family: sans-serif; 
+    overflow: hidden; 
+}
 .mapa-mental {
     position: fixed;
     inset: 0;
